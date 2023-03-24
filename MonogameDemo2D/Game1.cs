@@ -21,13 +21,14 @@ namespace MonogameDemo2D
         float ssXSpeed = 6;
         float ssYSpeed = 4f;
 
-
         Texture2D texBack;
         Texture2D texSpaceShip;
         Texture2D texMountain;
+        Texture2D texMissile;
 
         Sprite3 spaceship = null;
         Sprite3 mountain = null;
+        Sprite3 missile = null;
 
         ImageBackground back1 = null;
 
@@ -60,12 +61,33 @@ namespace MonogameDemo2D
             texBack = Util.texFromFile(GraphicsDevice, dir + "Back1.png");
             texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png");
             texMountain = Util.texFromFile(GraphicsDevice, dir + "Mountain2.png");
+            texMissile = Util.texFromFile(GraphicsDevice, dir + "Missile.png");
 
             back1 = new ImageBackground(texBack, Color.White, GraphicsDevice);
-            setupSpaceship();
+
+            spaceship = new Sprite3(true, texSpaceShip, xx, yy);
+            setupSpaceship(spaceship);
+
+            missile = new Sprite3(true, texMissile, 100, 0); //535x83
+            setupMissile(missile);
 
             mountain = new Sprite3(true, texMountain, 700, 0);
             mountain.setPosY(gameWindowHeight - mountain.getHeight());
+        }
+        private void setupMissile(Sprite3 missile)
+        {
+            missile.setWidthHeightOfTex(535, 83);
+            missile.setXframes(3);
+            missile.setYframes(1);
+            missile.setWidthHeight(535 / 3, 83);
+            Vector2[] anim = new Vector2[8]; // arrays start at 0 REMEMBER
+            anim[0].X = 0; anim[0].Y = 0;
+            anim[1].X = 1; anim[1].Y = 0;
+            anim[2].X = 2; anim[2].Y = 0;
+            missile.setAnimationSequence(anim, 0, 2, 17);
+            missile.setAnimFinished(0); // this is the default but - explicit for the tutorial
+            missile.setPos(500, 100);
+            missile.animationStart();
         }
 
         protected override void Update(GameTime gameTime)
@@ -91,6 +113,7 @@ namespace MonogameDemo2D
                 mountain.setPosX(gameWindowWidth);
             }
             else mountain.setPosX(mountain.getPosX() - ssXSpeed);
+            missile.animationTick(gameTime);
 
             base.Update(gameTime);
         }
@@ -104,6 +127,7 @@ namespace MonogameDemo2D
             back1.Draw(_spriteBatch);
             spaceship.Draw(_spriteBatch);
             mountain.Draw(_spriteBatch);
+            missile.Draw(_spriteBatch);
 
             if (showBB)
             {
@@ -115,9 +139,8 @@ namespace MonogameDemo2D
             base.Draw(gameTime);
         }
 
-        private void setupSpaceship()
+        private void setupSpaceship(Sprite3 spaceship)
         {
-            spaceship = new Sprite3(true, texSpaceShip, xx, yy);
             spaceship.setHeight(50);
             spaceship.setWidth(100);
             spaceship.setBBToTexture();
@@ -142,6 +165,8 @@ namespace MonogameDemo2D
             spaceship.drawHS(_spriteBatch, Color.Green);
             mountain.drawBB(_spriteBatch, Color.Black);
             mountain.drawHS(_spriteBatch, Color.Green);
+            missile.drawBB(_spriteBatch, Color.Black);
+            missile.drawHS(_spriteBatch, Color.Green);
         }
     }
 }
