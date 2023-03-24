@@ -16,15 +16,18 @@ namespace MonogameDemo2D
 
         float xx = 100;
         float yy = 600/2 - 50/2;
-        int paddleSpeed = 3;
-        int lhs = 236;
-        int rhs = 564;
-        int bot = 543;
+
+        float defaultXspeed = 6;
+        float ssXSpeed = 6;
+        float ssYSpeed = 4f;
+
 
         Texture2D texBack;
         Texture2D texSpaceShip;
+        Texture2D texMountain;
 
         Sprite3 spaceship = null;
+        Sprite3 mountain = null;
 
         ImageBackground back1 = null;
 
@@ -54,16 +57,15 @@ namespace MonogameDemo2D
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             LineBatch.init(GraphicsDevice);
 
-            texBack = Util.texFromFile(GraphicsDevice, dir + "Back1.png"); //***
-            texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png"); //***
+            texBack = Util.texFromFile(GraphicsDevice, dir + "Back1.png");
+            texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png");
+            texMountain = Util.texFromFile(GraphicsDevice, dir + "Mountain2.png");
 
             back1 = new ImageBackground(texBack, Color.White, GraphicsDevice);
+            setupSpaceship();
 
-            spaceship = new Sprite3(true, texSpaceShip, xx, yy);
-            spaceship.setHeight(50);
-            spaceship.setWidth(100);
-            spaceship.setBBToTexture();
-            bottomLimit = gameWindowHeight - spaceship.getHeight();
+            mountain = new Sprite3(true, texMountain, 700, 0);
+            mountain.setPosY(gameWindowHeight - mountain.getHeight());
         }
 
         protected override void Update(GameTime gameTime)
@@ -73,17 +75,22 @@ namespace MonogameDemo2D
 
             prevK = k;
             k = Keyboard.GetState();
-            if (k.IsKeyDown(Keys.Up))
-            {
-                if (spaceship.getPosY() >=0) spaceship.setPosY(spaceship.getPosY() - paddleSpeed);
-            }
 
-            if (k.IsKeyDown(Keys.Down))
-            {
-                if (spaceship.getPosY() < bottomLimit) spaceship.setPosY(spaceship.getPosY() + paddleSpeed);
-            }
+            handleMovement(k);
 
             if (k.IsKeyDown(Keys.B) && prevK.IsKeyUp(Keys.B)) showBB = !showBB;
+
+            // updating horizontal speed
+            if (k.IsKeyDown(Keys.Left)) ssXSpeed = 3f;
+            if (prevK.IsKeyUp(Keys.Left)) ssXSpeed = defaultXspeed;
+
+
+            // updating obstacles
+            if (mountain.getPosX() < -mountain.getWidth())
+            {
+                mountain.setPosX(gameWindowWidth);
+            }
+            else mountain.setPosX(mountain.getPosX() - ssXSpeed);
 
             base.Update(gameTime);
         }
@@ -93,19 +100,48 @@ namespace MonogameDemo2D
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
+
             back1.Draw(_spriteBatch);
             spaceship.Draw(_spriteBatch);
+            mountain.Draw(_spriteBatch);
 
             if (showBB)
             {
-                spaceship.drawBB(_spriteBatch, Color.Black);
-                spaceship.drawHS(_spriteBatch, Color.Green);
-                // LineBatch.drawLineRectangle(_spriteBatch, playArea, Color.Blue);
+                renderBoundingBoxes();
             }
 
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void setupSpaceship()
+        {
+            spaceship = new Sprite3(true, texSpaceShip, xx, yy);
+            spaceship.setHeight(50);
+            spaceship.setWidth(100);
+            spaceship.setBBToTexture();
+            bottomLimit = gameWindowHeight - spaceship.getHeight();
+        }
+
+        private void handleMovement(KeyboardState k)
+        {
+            if (k.IsKeyDown(Keys.Up))
+            {
+                if (spaceship.getPosY() >= 0) spaceship.setPosY(spaceship.getPosY() - ssYSpeed);
+            }
+            if (k.IsKeyDown(Keys.Down))
+            {
+                if (spaceship.getPosY() < bottomLimit) spaceship.setPosY(spaceship.getPosY() + ssYSpeed);
+            }
+        }
+
+        private void renderBoundingBoxes()
+        {
+            spaceship.drawBB(_spriteBatch, Color.Black);
+            spaceship.drawHS(_spriteBatch, Color.Green);
+            mountain.drawBB(_spriteBatch, Color.Black);
+            mountain.drawHS(_spriteBatch, Color.Green);
         }
     }
 }
