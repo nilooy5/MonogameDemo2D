@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RC_Framework;
-//using SharpDX.Direct2D1;
-using System.Reflection.Metadata;
-// using SharpDX.Direct3D9;
+using System.IO;
 
 namespace MonogameDemo2D
 {
@@ -12,6 +10,16 @@ namespace MonogameDemo2D
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        int gameWindowWidth = 800;
+        int gameWindowHeight = 600;
+        float bottomLimit = 0;
+
+        float xx = 100;
+        float yy = 600/2 - 50/2;
+        int paddleSpeed = 3;
+        int lhs = 236;
+        int rhs = 564;
+        int bot = 543;
 
         Texture2D texBack;
         Texture2D texSpaceShip;
@@ -31,24 +39,31 @@ namespace MonogameDemo2D
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            _graphics.PreferredBackBufferHeight = gameWindowHeight;
+            _graphics.PreferredBackBufferWidth = gameWindowWidth;
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            LineBatch.init(GraphicsDevice);
 
             texBack = Util.texFromFile(GraphicsDevice, dir + "Back1.png"); //***
             texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png"); //***
-            spaceship = new Sprite3(true, texSpaceShip, 0, 0);
+
+            back1 = new ImageBackground(texBack, Color.White, GraphicsDevice);
+
+            spaceship = new Sprite3(true, texSpaceShip, xx, yy);
+            spaceship.setHeight(50);
+            spaceship.setWidth(100);
             spaceship.setBBToTexture();
+            bottomLimit = gameWindowHeight - spaceship.getHeight();
         }
 
         protected override void Update(GameTime gameTime)
@@ -58,13 +73,17 @@ namespace MonogameDemo2D
 
             prevK = k;
             k = Keyboard.GetState();
-            if (k.IsKeyDown(Keys.B) && prevK.IsKeyUp(Keys.B)) // ***
+            if (k.IsKeyDown(Keys.Up))
             {
-                showBB = !showBB;
+                if (spaceship.getPosY() >=0) spaceship.setPosY(spaceship.getPosY() - paddleSpeed);
             }
 
+            if (k.IsKeyDown(Keys.Down))
+            {
+                if (spaceship.getPosY() < bottomLimit) spaceship.setPosY(spaceship.getPosY() + paddleSpeed);
+            }
 
-            // TODO: Add your update logic here
+            if (k.IsKeyDown(Keys.B) && prevK.IsKeyUp(Keys.B)) showBB = !showBB;
 
             base.Update(gameTime);
         }
@@ -74,9 +93,8 @@ namespace MonogameDemo2D
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-
-            _spriteBatch.Draw(texBack, new Vector2(0, 0), Color.White);
-            _spriteBatch.Draw(texSpaceShip, new Vector2(0, 0), Color.White);
+            back1.Draw(_spriteBatch);
+            spaceship.Draw(_spriteBatch);
 
             if (showBB)
             {
