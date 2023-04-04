@@ -25,6 +25,8 @@ namespace MonogameDemo2D
         float defaultXspeed = 6;
         float ssXSpeed = 6;
         float ssYSpeed = 4f;
+
+
         float missileOffsetY = 20f;
 
         Texture2D texBack;
@@ -32,11 +34,13 @@ namespace MonogameDemo2D
         Texture2D texMountain;
         Texture2D texMissile;
         Texture2D texTruck;
+        Texture2D texFailScreen;
 
         Sprite3 spaceship = null;
         Sprite3 mountain = null;
         Sprite3 missile = null;
         Sprite3 truck = null;
+        Sprite3 failScreen = null;
 
         ImageBackground skyBack = null;
 
@@ -71,6 +75,7 @@ namespace MonogameDemo2D
             texMountain = Util.texFromFile(GraphicsDevice, dir + "Mountain2.png");
             texMissile = Util.texFromFile(GraphicsDevice, dir + "Missile.png");
             texTruck = Util.texFromFile(GraphicsDevice, dir + "Truck1.png");
+            texFailScreen = Util.texFromFile(GraphicsDevice, dir + "fail_screen.png");
 
             skyBack = new ImageBackground(texBack, Color.White, GraphicsDevice);
 
@@ -85,6 +90,8 @@ namespace MonogameDemo2D
 
             truck = new Sprite3(true, texTruck, 0, 0);
             setupTruck(truck, 10, mountain.getPosX(), mountain.getPosY()-mountain.getHeight());
+
+            failScreen = new Sprite3(false, texFailScreen, 0, 0);
         }
 
         protected override void Update(GameTime gameTime)
@@ -131,6 +138,7 @@ namespace MonogameDemo2D
             mountain.Draw(_spriteBatch);
             missile.Draw(_spriteBatch);
             truck.Draw(_spriteBatch);
+            failScreen.Draw(_spriteBatch);
 
             if (showBB)  renderBoundingBoxes();
 
@@ -230,6 +238,8 @@ namespace MonogameDemo2D
             {
                 spaceship.active = false;
                 spaceship.visible = false;
+                pauseMovement();
+                failScreen.visible = true;
             }
             if (missileCollidesWithTruck)
             {
@@ -238,6 +248,13 @@ namespace MonogameDemo2D
                 missile.visible = false;
                 missile.active = false;
             }
+        }
+
+        private void pauseMovement()
+        {
+            defaultXspeed = 0;
+            ssXSpeed = 0;
+            ssYSpeed = 0;
         }
 
         private void renderBoundingBoxes()
