@@ -20,6 +20,8 @@ namespace MonogameDemo2D
         int missileHeight = 25;
         int missileWidth = 50;
 
+        int missedCounter = 0;
+
         float defaultXspeed = 6;
         float ssXSpeed = 6;
         float ssYSpeed = 4f;
@@ -29,10 +31,12 @@ namespace MonogameDemo2D
         Texture2D texSpaceShip;
         Texture2D texMountain;
         Texture2D texMissile;
+        Texture2D texTruck;
 
         Sprite3 spaceship = null;
         Sprite3 mountain = null;
         Sprite3 missile = null;
+        Sprite3 truck = null;
 
         ImageBackground skyBack = null;
 
@@ -66,6 +70,7 @@ namespace MonogameDemo2D
             texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png");
             texMountain = Util.texFromFile(GraphicsDevice, dir + "Mountain2.png");
             texMissile = Util.texFromFile(GraphicsDevice, dir + "Missile.png");
+            texTruck = Util.texFromFile(GraphicsDevice, dir + "Truck1.png");
 
             skyBack = new ImageBackground(texBack, Color.White, GraphicsDevice);
 
@@ -76,7 +81,10 @@ namespace MonogameDemo2D
             setupMissile(missile);
 
             mountain = new Sprite3(true, texMountain, 700, 0);
-            mountain.setPosY(gameWindowHeight - mountain.getHeight());
+            setupMountains();
+
+            truck = new Sprite3(true, texTruck, 0, 0);
+            setupTruck(truck, 10, mountain.getPosX(), mountain.getPosY()-mountain.getHeight());
         }
 
         protected override void Update(GameTime gameTime)
@@ -95,12 +103,8 @@ namespace MonogameDemo2D
             if (k.IsKeyDown(Keys.Left)) ssXSpeed = 3f;
             if (prevK.IsKeyUp(Keys.Left)) ssXSpeed = defaultXspeed;
 
-            // updating obstacles
-            if (mountain.getPosX() < -mountain.getWidth())
-            {
-                mountain.setPosX(gameWindowWidth);
-            } else mountain.setPosX(mountain.getPosX() - ssXSpeed);
-
+            // updating obstacles position
+            updateObstaclesPosition();
 
             missile.animationTick(gameTime);
 
@@ -110,6 +114,8 @@ namespace MonogameDemo2D
                 missile.setPosY(spaceship.getPosY() + missileOffsetY);
                 missile.animationStart();
             } else missile.setPosX(missile.getPosX() + ssXSpeed);
+
+            checkColilssions();
 
             base.Update(gameTime);
         }
@@ -124,6 +130,7 @@ namespace MonogameDemo2D
             spaceship.Draw(_spriteBatch);
             mountain.Draw(_spriteBatch);
             missile.Draw(_spriteBatch);
+            truck.Draw(_spriteBatch);
 
             if (showBB)  renderBoundingBoxes();
 
@@ -131,6 +138,7 @@ namespace MonogameDemo2D
 
             base.Draw(gameTime);
         }
+
         private void setupMissile(Sprite3 missile)
         {
             missile.setWidthHeightOfTex(535, 83);
@@ -158,6 +166,19 @@ namespace MonogameDemo2D
             bottomLimit = gameWindowHeight - spaceship.getHeight();
         }
 
+        private void setupMountains()
+        {
+            mountain.setPosY(gameWindowHeight - mountain.getHeight());
+        }
+
+        private void setupTruck(Sprite3 truck, int shrinkFactor, float baseX, float baseY)
+        {
+            truck.setHeight(truck.getHeight() / shrinkFactor);
+            truck.setWidth(truck.getWidth() / shrinkFactor);
+            truck.setPosX(baseX);
+            truck.setPosY(baseY+truck.getHeight()+10);
+        }
+
         private void handleSpaceshipMovement(KeyboardState k)
         {
             if (k.IsKeyDown(Keys.Up))
@@ -170,6 +191,55 @@ namespace MonogameDemo2D
             }
         }
 
+        private void updateObstaclesPosition()
+        {
+            if (mountain.getPosX() < -mountain.getWidth())
+            {
+                mountain.setPosX(gameWindowWidth);
+            }
+            else mountain.setPosX(mountain.getPosX() - ssXSpeed);
+
+            if (truck.getPosX() < -truck.getWidth())
+            {
+                updateMissedCounter();
+                truck.setPosX(gameWindowWidth);
+            }
+            else truck.setPosX(mountain.getPosX() - ssXSpeed);
+        }
+
+
+        /// <summary>
+        /// counts the number of missed trucks and calculates scores based on it
+        /// </summary>
+        private void updateMissedCounter()
+        {
+            if (truck.getActive() && (truck.getPosX() < -mountain.getWidth()))
+            {
+                missedCounter++;
+            }
+        }
+
+        private void checkColilssions()
+        {
+
+            bool ssCollidedWithMountain = mountain.collision(spaceship);
+            bool ssCollidesWithTruck = truck.collision(spaceship);
+            bool missileCollidesWithTruck = truck.collision(missile);
+
+            if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
+            {
+                spaceship.active = false;
+                spaceship.visible = false;
+            }
+            if (missileCollidesWithTruck)
+            {
+                truck.active = false;
+                truck.visible = false;
+                missile.visible = false;
+                missile.active = false;
+            }
+        }
+
         private void renderBoundingBoxes()
         {
             spaceship.drawBB(_spriteBatch, Color.Green);
@@ -178,6 +248,8 @@ namespace MonogameDemo2D
             mountain.drawHS(_spriteBatch, Color.Red);
             missile.drawBB(_spriteBatch, Color.Green);
             missile.drawHS(_spriteBatch, Color.Red);
+            truck.drawBB(_spriteBatch, Color.Green);
+            truck.drawHS(_spriteBatch, Color.Red);
         }
     }
 }
