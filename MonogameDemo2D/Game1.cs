@@ -196,27 +196,15 @@ namespace MonogameDemo2D
             boom.setYframes(boomYframes);
             boom.setWidthHeight(boomWidth / boomXframes, boomHeight / boomYframes);
             boom.setBBToWH();
-            boomAnim[0].X = 0; boomAnim[0].Y = 0;
-            boomAnim[1].X = 1; boomAnim[1].Y = 0;
-            boomAnim[2].X = 2; boomAnim[2].Y = 0;
-            boomAnim[3].X = 3; boomAnim[3].Y = 0;
-            boomAnim[4].X = 4; boomAnim[4].Y = 0;
-            boomAnim[5].X = 5; boomAnim[5].Y = 0;
-            boomAnim[6].X = 6; boomAnim[6].Y = 0;
-            boomAnim[7].X = 0; boomAnim[7].Y = 1;
-            boomAnim[8].X = 1; boomAnim[8].Y = 1;
-            boomAnim[9].X = 2; boomAnim[9].Y = 1;
-            boomAnim[10].X = 3; boomAnim[10].Y = 1;
-            boomAnim[11].X = 4; boomAnim[11].Y = 1;
-            boomAnim[12].X = 5; boomAnim[12].Y = 1;
-            boomAnim[13].X = 6; boomAnim[13].Y = 1;
-            boomAnim[14].X = 0; boomAnim[14].Y = 2;
-            boomAnim[15].X = 1; boomAnim[15].Y = 2;
-            boomAnim[16].X = 2; boomAnim[16].Y = 2;
-            boomAnim[17].X = 3; boomAnim[17].Y = 2;
-            boomAnim[18].X = 4; boomAnim[18].Y = 2;
-            boomAnim[19].X = 5; boomAnim[19].Y = 2;
-            boomAnim[20].X = 6; boomAnim[20].Y = 2;
+
+            for (int i = 0; i < boomYframes; i++)
+            {
+                for (int j = 0; j < boomXframes; j++)
+                {
+                    boomAnim[i * boomXframes + j].X = j;
+                    boomAnim[i * boomXframes + j].Y = i;
+                }
+            }
 
             boom.setAnimationSequence(boomAnim, 20, 20, 5);
             // boom.setAnimFinished(1);
