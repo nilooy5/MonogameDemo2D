@@ -291,7 +291,7 @@ namespace MonogameDemo2D
 
             bool ssCollidedWithMountain = mountain.collision(spaceship);
             bool ssCollidesWithTruck = truck.collision(spaceship);
-            bool missileCollidesWithTruck = truck.collision(missile);
+            bool missileCollidesWithTruck = truck.collision(missile) && truck.active;
 
             if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
             {
