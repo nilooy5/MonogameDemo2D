@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RC_Framework;
+using System;
 using System.IO;
 
 namespace MonogameDemo2D
@@ -25,6 +26,7 @@ namespace MonogameDemo2D
         float defaultXspeed = 6;
         float ssXSpeed = 6;
         float ssYSpeed = 4f;
+        float missileSpeedX = 10f;
 
 
         float missileOffsetY = 20f;
@@ -35,12 +37,14 @@ namespace MonogameDemo2D
         Texture2D texMissile;
         Texture2D texTruck;
         Texture2D texFailScreen;
+        Texture2D texBoom;
 
         Sprite3 spaceship = null;
         Sprite3 mountain = null;
         Sprite3 missile = null;
         Sprite3 truck = null;
         Sprite3 failScreen = null;
+        Sprite3 boom = null;
 
         ImageBackground skyBack = null;
 
@@ -76,6 +80,7 @@ namespace MonogameDemo2D
             texMissile = Util.texFromFile(GraphicsDevice, dir + "Missile.png");
             texTruck = Util.texFromFile(GraphicsDevice, dir + "Truck1.png");
             texFailScreen = Util.texFromFile(GraphicsDevice, dir + "fail_screen.png");
+            texBoom = Util.texFromFile(GraphicsDevice, dir + "Boom6.png");
 
             skyBack = new ImageBackground(texBack, Color.White, GraphicsDevice);
 
@@ -83,13 +88,16 @@ namespace MonogameDemo2D
             setupSpaceship(spaceship);
 
             missile = new Sprite3(true, texMissile, 0,0); //535x83
-            setupMissile(missile);
+            setupMissile(missile); 
 
             mountain = new Sprite3(true, texMountain, 700, 0);
             setupMountains();
 
             truck = new Sprite3(true, texTruck, 0, 0);
             setupTruck(truck, 10, mountain.getPosX(), mountain.getPosY()-mountain.getHeight());
+
+            boom = new Sprite3(true, texBoom, 0, 0); //535x83
+            setupBoom(boom);
 
             failScreen = new Sprite3(false, texFailScreen, 0, 0);
         }
@@ -114,15 +122,23 @@ namespace MonogameDemo2D
             updateObstaclesPosition();
 
             missile.animationTick(gameTime);
-
             if (missile.getPosX() > gameWindowWidth)
             {
                 missile.setPosX(spaceship.getPosX() + spaceship.getWidth());
                 missile.setPosY(spaceship.getPosY() + missileOffsetY);
-                missile.animationStart();
-            } else missile.setPosX(missile.getPosX() + ssXSpeed);
+            } else missile.setPosX(missile.getPosX() + missileSpeedX);
 
-            checkColilssions();
+            checkColilssions(gameTime);
+            boom.setPosX(mountain.getPosX() - boom.getWidth()/2);
+
+            if (missedCounter > 3) 
+            {
+                pauseMovement();
+                failScreen.setActive(true);
+                failScreen.setVisible(true);
+            }
+
+            boom.animationTick(gameTime);
 
             base.Update(gameTime);
         }
@@ -139,6 +155,7 @@ namespace MonogameDemo2D
             missile.Draw(_spriteBatch);
             truck.Draw(_spriteBatch);
             failScreen.Draw(_spriteBatch);
+            boom.Draw(_spriteBatch);
 
             if (showBB)  renderBoundingBoxes();
 
@@ -164,6 +181,46 @@ namespace MonogameDemo2D
             missile.setAnimFinished(0); // this is the default but - explicit for the tutorial
             missile.setPos(spaceship.getPosX() + spaceship.getWidth(), spaceship.getPosY() + missileOffsetY);
             missile.animationStart();
+        }
+
+        private void setupBoom(Sprite3 boom)
+        {
+            int boomWidth = 896;
+            int boomHeight = 384;
+            int boomXframes = 7;
+            int boomYframes = 3;
+            boom.setWidthHeightOfTex(boomWidth, boomHeight);
+            boom.setXframes(boomXframes);
+            boom.setYframes(boomYframes);
+            boom.setWidthHeight(boomWidth / boomXframes, boomHeight / boomYframes);
+            boom.setBBToWH();
+            Vector2[] boomAnim = new Vector2[21];
+            boomAnim[0].X = 0; boomAnim[0].Y = 0;
+            boomAnim[1].X = 1; boomAnim[1].Y = 0;
+            boomAnim[2].X = 2; boomAnim[2].Y = 0;
+            boomAnim[3].X = 3; boomAnim[3].Y = 0;
+            boomAnim[4].X = 4; boomAnim[4].Y = 0;
+            boomAnim[5].X = 5; boomAnim[5].Y = 0;
+            boomAnim[6].X = 6; boomAnim[6].Y = 0;
+            boomAnim[7].X = 0; boomAnim[7].Y = 1;
+            boomAnim[8].X = 1; boomAnim[8].Y = 1;
+            boomAnim[9].X = 2; boomAnim[9].Y = 1;
+            boomAnim[10].X = 3; boomAnim[10].Y = 1;
+            boomAnim[11].X = 4; boomAnim[11].Y = 1;
+            boomAnim[12].X = 5; boomAnim[12].Y = 1;
+            boomAnim[13].X = 6; boomAnim[13].Y = 1;
+            boomAnim[14].X = 0; boomAnim[14].Y = 2;
+            boomAnim[15].X = 1; boomAnim[15].Y = 2;
+            boomAnim[16].X = 2; boomAnim[16].Y = 2;
+            boomAnim[17].X = 3; boomAnim[17].Y = 2;
+            boomAnim[18].X = 4; boomAnim[18].Y = 2;
+            boomAnim[19].X = 5; boomAnim[19].Y = 2;
+            boomAnim[20].X = 6; boomAnim[20].Y = 2;
+
+            boom.setAnimationSequence(boomAnim, 00, 20, 5);
+            boom.setAnimFinished(0);
+            boom.setPos(mountain.getPosX(), mountain.getPosY()-100);
+            boom.animationStart();
         }
 
         private void setupSpaceship(Sprite3 spaceship)
@@ -215,7 +272,6 @@ namespace MonogameDemo2D
             else truck.setPosX(mountain.getPosX() - ssXSpeed);
         }
 
-
         /// <summary>
         /// counts the number of missed trucks and calculates scores based on it
         /// </summary>
@@ -227,7 +283,7 @@ namespace MonogameDemo2D
             }
         }
 
-        private void checkColilssions()
+        private void checkColilssions(GameTime gameTime)
         {
 
             bool ssCollidedWithMountain = mountain.collision(spaceship);
@@ -247,6 +303,9 @@ namespace MonogameDemo2D
                 truck.visible = false;
                 missile.visible = false;
                 missile.active = false;
+
+                //boom.setAnimationSequence(boomAnim, 0, 20, 5);
+                //boom.animationStart();
             }
         }
 
@@ -255,6 +314,7 @@ namespace MonogameDemo2D
             defaultXspeed = 0;
             ssXSpeed = 0;
             ssYSpeed = 0;
+            missileSpeedX = 0;
         }
 
         private void renderBoundingBoxes()
@@ -267,6 +327,8 @@ namespace MonogameDemo2D
             missile.drawHS(_spriteBatch, Color.Red);
             truck.drawBB(_spriteBatch, Color.Green);
             truck.drawHS(_spriteBatch, Color.Red);
+            boom.drawBB(_spriteBatch, Color.Green);
+            boom.drawHS(_spriteBatch, Color.Red);
         }
     }
 }
