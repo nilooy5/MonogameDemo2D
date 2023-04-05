@@ -26,7 +26,7 @@ namespace MonogameDemo2D
         float defaultXspeed = 6;
         float ssXSpeed = 6;
         float ssYSpeed = 4f;
-        float missileSpeedX = 10f;
+        float missileSpeedX = 20f;
 
         Vector2[] boomAnim = new Vector2[21];
 
@@ -123,13 +123,20 @@ namespace MonogameDemo2D
             updateObstaclesPosition();
 
             missile.animationTick(gameTime);
-            if (missile.getPosX() > gameWindowWidth)
-            {
-                missile.setPosX(spaceship.getPosX() + spaceship.getWidth());
-                missile.setPosY(spaceship.getPosY() + missileOffsetY);
-            } else missile.setPosX(missile.getPosX() + missileSpeedX);
 
-            boom.setPosX(mountain.getPosX() - boom.getWidth()/2);
+            if (missile.state == 0)
+            {
+                missile.setVisible(false);
+                missile.setPosY(spaceship.getPosY() + missileOffsetY);
+            }
+            if (k.IsKeyDown(Keys.R) && prevK.IsKeyUp(Keys.R)) missile.state = 1;
+            if (missile.state == 1)
+            {
+                missile.setVisible(true);
+                moveMissile();
+            }
+
+            boom.setPosX(truck.getPosX());
 
             boom.animationTick(gameTime);
 
@@ -181,7 +188,7 @@ namespace MonogameDemo2D
             anim[2].X = 2; anim[2].Y = 0;
             missile.setAnimationSequence(anim, 0, 2, 5);
             missile.setAnimFinished(0); // this is the default but - explicit for the tutorial
-            missile.setPos(spaceship.getPosX() + spaceship.getWidth(), spaceship.getPosY() + missileOffsetY);
+            missile.setPos(spaceship.getPosX() + spaceship.getWidth() - missile.getWidth(), spaceship.getPosY() + missileOffsetY);
             missile.animationStart();
         }
 
@@ -208,7 +215,7 @@ namespace MonogameDemo2D
 
             boom.setAnimationSequence(boomAnim, 20, 20, 5);
             // boom.setAnimFinished(1);
-            boom.setPos(mountain.getPosX(), mountain.getPosY()-100);
+            boom.setPos(truck.getPosX(), mountain.getPosY()-100);
             boom.animationStart();
         }
 
@@ -255,7 +262,14 @@ namespace MonogameDemo2D
 
             if (truck.getPosX() < -truck.getWidth())
             {
-                updateMissedCounter();
+                // updateMissedCounter();
+                if (!truck.active)
+                {
+                    truck.setActive(true);
+                    truck.visible = true;
+                    boom.visible = true;
+                    boom.active=true;
+                }
                 truck.setPosX(gameWindowWidth);
             }
             else truck.setPosX(mountain.getPosX() - ssXSpeed);
@@ -277,7 +291,7 @@ namespace MonogameDemo2D
 
             bool ssCollidedWithMountain = mountain.collision(spaceship);
             bool ssCollidesWithTruck = truck.collision(spaceship);
-            bool missileCollidesWithTruck = truck.collision(missile);
+            bool missileCollidesWithTruck = truck.collision(missile) && truck.active;
 
             if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
             {
@@ -292,10 +306,7 @@ namespace MonogameDemo2D
                 truck.visible = false;
                 missile.visible = false;
                 missile.active = false;
-
-                boom.setAnimationSequence(boomAnim, 0, 20, 5);
-                boom.setAnimFinished(1);
-                boom.animationStart();
+                playBoomAnimation();
             }
         }
 
@@ -319,6 +330,28 @@ namespace MonogameDemo2D
             truck.drawHS(_spriteBatch, Color.Red);
             boom.drawBB(_spriteBatch, Color.Green);
             boom.drawHS(_spriteBatch, Color.Red);
+        }
+
+        private void playBoomAnimation()
+        {
+            boom.setAnimationSequence(boomAnim, 0, 20, 5);
+            boom.setAnimFinished(1);
+            boom.animationStart();
+        }
+
+        private void moveMissile()
+        {
+            if (missile.getPosX() > gameWindowWidth) resetMissilePosition();
+            else missile.setPosX(missile.getPosX() + missileSpeedX);
+        }
+
+        private void resetMissilePosition()
+        {
+            missile.state = 0;
+            missile.setPosX(spaceship.getPosX() + missile.getWidth());
+            missile.setPosY(spaceship.getPosY() + missileOffsetY);
+            missile.setActive(true);
+            missile.setVisible(false);
         }
     }
 }
