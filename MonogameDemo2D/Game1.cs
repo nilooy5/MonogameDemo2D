@@ -28,6 +28,7 @@ namespace MonogameDemo2D
         float ssYSpeed = 4f;
         float missileSpeedX = 10f;
 
+        Vector2[] boomAnim = new Vector2[21];
 
         float missileOffsetY = 20f;
 
@@ -128,8 +129,11 @@ namespace MonogameDemo2D
                 missile.setPosY(spaceship.getPosY() + missileOffsetY);
             } else missile.setPosX(missile.getPosX() + missileSpeedX);
 
-            checkColilssions(gameTime);
             boom.setPosX(mountain.getPosX() - boom.getWidth()/2);
+
+            boom.animationTick(gameTime);
+
+            checkColilssions(gameTime, boomAnim);
 
             if (missedCounter > 3) 
             {
@@ -137,8 +141,6 @@ namespace MonogameDemo2D
                 failScreen.setActive(true);
                 failScreen.setVisible(true);
             }
-
-            boom.animationTick(gameTime);
 
             base.Update(gameTime);
         }
@@ -194,7 +196,6 @@ namespace MonogameDemo2D
             boom.setYframes(boomYframes);
             boom.setWidthHeight(boomWidth / boomXframes, boomHeight / boomYframes);
             boom.setBBToWH();
-            Vector2[] boomAnim = new Vector2[21];
             boomAnim[0].X = 0; boomAnim[0].Y = 0;
             boomAnim[1].X = 1; boomAnim[1].Y = 0;
             boomAnim[2].X = 2; boomAnim[2].Y = 0;
@@ -217,8 +218,8 @@ namespace MonogameDemo2D
             boomAnim[19].X = 5; boomAnim[19].Y = 2;
             boomAnim[20].X = 6; boomAnim[20].Y = 2;
 
-            boom.setAnimationSequence(boomAnim, 00, 20, 5);
-            boom.setAnimFinished(0);
+            boom.setAnimationSequence(boomAnim, 20, 20, 5);
+            // boom.setAnimFinished(1);
             boom.setPos(mountain.getPosX(), mountain.getPosY()-100);
             boom.animationStart();
         }
@@ -283,7 +284,7 @@ namespace MonogameDemo2D
             }
         }
 
-        private void checkColilssions(GameTime gameTime)
+        private void checkColilssions(GameTime gameTime, Vector2[] boomAnim)
         {
 
             bool ssCollidedWithMountain = mountain.collision(spaceship);
@@ -304,8 +305,9 @@ namespace MonogameDemo2D
                 missile.visible = false;
                 missile.active = false;
 
-                //boom.setAnimationSequence(boomAnim, 0, 20, 5);
-                //boom.animationStart();
+                boom.setAnimationSequence(boomAnim, 0, 20, 5);
+                boom.setAnimFinished(1);
+                boom.animationStart();
             }
         }
 
