@@ -291,7 +291,7 @@ namespace MonogameDemo2D
 
             bool ssCollidedWithMountain = mountain.collision(spaceship);
             bool ssCollidesWithTruck = truck.collision(spaceship);
-            bool missileCollidesWithTruck = truck.collision(missile) && truck.active;
+            bool missileCollidesWithTruck = truck.collision(missile);
 
             if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
             {
@@ -302,11 +302,11 @@ namespace MonogameDemo2D
             }
             if (missileCollidesWithTruck)
             {
+                playBoomAnimation();
                 truck.active = false;
                 truck.visible = false;
                 missile.visible = false;
                 missile.active = false;
-                playBoomAnimation();
             }
         }
 
