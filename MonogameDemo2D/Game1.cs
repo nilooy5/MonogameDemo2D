@@ -129,7 +129,7 @@ namespace MonogameDemo2D
                 missile.setVisible(false);
                 missile.setPosY(spaceship.getPosY() + missileOffsetY);
             }
-            if (k.IsKeyDown(Keys.R) && prevK.IsKeyUp(Keys.R)) missile.state = 1;
+            if (k.IsKeyDown(Keys.F) && prevK.IsKeyUp(Keys.F)) missile.state = 1;
             if (missile.state == 1)
             {
                 missile.setVisible(true);
@@ -267,8 +267,7 @@ namespace MonogameDemo2D
                 {
                     truck.setActive(true);
                     truck.visible = true;
-                    boom.visible = true;
-                    boom.active=true;
+                    boom.active = true;
                 }
                 truck.setPosX(gameWindowWidth);
             }
@@ -334,6 +333,7 @@ namespace MonogameDemo2D
 
         private void playBoomAnimation()
         {
+            boom.setVisible(true);
             boom.setAnimationSequence(boomAnim, 0, 20, 5);
             boom.setAnimFinished(1);
             boom.animationStart();
