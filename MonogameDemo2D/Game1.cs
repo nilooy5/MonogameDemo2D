@@ -47,7 +47,7 @@ namespace MonogameDemo2D
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
-        ImageBackground skyBack = null;
+        ScrollBackGround skyBack = null;
 
         bool showBB = false;
 
@@ -83,7 +83,7 @@ namespace MonogameDemo2D
             texFailScreen = Util.texFromFile(GraphicsDevice, dir + "fail_screen.png");
             texBoom = Util.texFromFile(GraphicsDevice, dir + "Boom6.png");
 
-            skyBack = new ImageBackground(texBack, Color.White, GraphicsDevice);
+            skyBack = new ScrollBackGround(texBack, texBack.Bounds, new Rectangle(0,0,gameWindowWidth, gameWindowHeight), -5f, 2);
 
             spaceship = new Sprite3(true, texSpaceShip, xx, yy);
             setupSpaceship(spaceship);
@@ -105,6 +105,7 @@ namespace MonogameDemo2D
 
         protected override void Update(GameTime gameTime)
         {
+            skyBack.Update(gameTime);
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
