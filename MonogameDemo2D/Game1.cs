@@ -52,6 +52,10 @@ namespace MonogameDemo2D
         SoundEffect boomSound;
         LimitSound limBoomSound;
 
+        SpriteFont font1;
+
+        int gameScore = 0;
+
         bool showBB = false;
 
         KeyboardState prevK;
@@ -77,6 +81,8 @@ namespace MonogameDemo2D
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             LineBatch.init(GraphicsDevice);
+
+            font1 = Content.Load<SpriteFont>("SpriteFont1");
 
             texBack = Util.texFromFile(GraphicsDevice, dir + "Back1.png");
             texSpaceShip = Util.texFromFile(GraphicsDevice, dir + "Spaceship3a.png");
@@ -156,6 +162,8 @@ namespace MonogameDemo2D
                 failScreen.setVisible(true);
             }
 
+            gameScore++;
+
             base.Update(gameTime);
         }
 
@@ -172,8 +180,8 @@ namespace MonogameDemo2D
             truck.Draw(_spriteBatch);
             failScreen.Draw(_spriteBatch);
             boom.Draw(_spriteBatch);
-
             if (showBB)  renderBoundingBoxes();
+            _spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White);
 
             _spriteBatch.End();
 
