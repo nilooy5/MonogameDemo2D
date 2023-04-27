@@ -49,8 +49,6 @@ namespace MonogameDemo2D
 
         ScrollBackGround skyBack = null;
 
-        SoundEffect music;
-        LimitSound limSound;
         SoundEffect boomSound;
         LimitSound limBoomSound;
 
