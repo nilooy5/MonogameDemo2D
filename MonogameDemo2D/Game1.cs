@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using RC_Framework;
 using System;
 using System.IO;
@@ -39,7 +40,6 @@ namespace MonogameDemo2D
         Texture2D texTruck;
         Texture2D texFailScreen;
         Texture2D texBoom;
-
         Sprite3 spaceship = null;
         Sprite3 mountain = null;
         Sprite3 missile = null;
@@ -48,6 +48,11 @@ namespace MonogameDemo2D
         Sprite3 boom = null;
 
         ScrollBackGround skyBack = null;
+
+        SoundEffect music;
+        LimitSound limSound;
+        SoundEffect boomSound;
+        LimitSound limBoomSound;
 
         bool showBB = false;
 
@@ -82,6 +87,9 @@ namespace MonogameDemo2D
             texTruck = Util.texFromFile(GraphicsDevice, dir + "Truck1.png");
             texFailScreen = Util.texFromFile(GraphicsDevice, dir + "fail_screen.png");
             texBoom = Util.texFromFile(GraphicsDevice, dir + "Boom6.png");
+
+            boomSound = Content.Load<SoundEffect>("flack");
+            limBoomSound = new LimitSound(boomSound, 3);
 
             skyBack = new ScrollBackGround(texBack, texBack.Bounds, new Rectangle(0,0,gameWindowWidth, gameWindowHeight), -5f, 2);
 
@@ -303,6 +311,8 @@ namespace MonogameDemo2D
             if (missileCollidesWithTruck)
             {
                 playBoomAnimation();
+                limBoomSound.playSoundIfOk();
+                limBoomSound.Update(gameTime);
                 truck.active = false;
                 truck.visible = false;
                 missile.visible = false;
