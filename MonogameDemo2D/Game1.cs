@@ -162,8 +162,6 @@ namespace MonogameDemo2D
                 failScreen.setVisible(true);
             }
 
-            gameScore++;
-
             base.Update(gameTime);
         }
 
@@ -181,7 +179,7 @@ namespace MonogameDemo2D
             failScreen.Draw(_spriteBatch);
             boom.Draw(_spriteBatch);
             if (showBB)  renderBoundingBoxes();
-            _spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White);
+            _spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2.5f, SpriteEffects.None, 0);
 
             _spriteBatch.End();
 
@@ -318,6 +316,7 @@ namespace MonogameDemo2D
             {
                 playBoomAnimation();
                 limBoomSound.playSoundIfOk();
+                gameScore = gameScore + 25;
                 limBoomSound.Update(gameTime);
                 truck.active = false;
                 truck.visible = false;
