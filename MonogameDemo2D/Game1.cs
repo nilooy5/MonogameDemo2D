@@ -307,6 +307,8 @@ namespace MonogameDemo2D
 
             if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
             {
+                playBoomAnimation();
+                limBoomSound.playSoundIfOk();
                 spaceship.active = false;
                 spaceship.visible = false;
                 pauseMovement();
