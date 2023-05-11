@@ -5,11 +5,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using RC_Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game1
 {
@@ -45,6 +40,7 @@ namespace Game1
         Texture2D texTruck;
         Texture2D texFailScreen;
         Texture2D texBoom;
+        Texture2D playerLifeTex;
 
         Sprite3 spaceship = null;
         Sprite3 missile = null;
@@ -53,6 +49,7 @@ namespace Game1
 
         SpriteList enemies;
         SpriteList enemy_missile_list;
+        SpriteList playerHealth = null;
 
         ScrollBackGround skyBack = null;
 
@@ -74,10 +71,20 @@ namespace Game1
             texMissileEnemy = Util.texFromFile(graphicsDevice, Dir.dir + "missile2 - Copy.png");
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
+            playerLifeTex = Util.texFromFile(graphicsDevice, Dir.dir + "playerLife1_green.png");
 
             font1 = Content.Load<SpriteFont>("SpriteFont1");
 
             boomSound = Content.Load<SoundEffect>("flack");
+
+            playerHealth = new SpriteList();
+            for (int i = 0; i < baseHealth; i++)
+            {
+                Sprite3 h = new Sprite3(true, playerLifeTex, 10 + (i * 50), gameWindowHeight-40);
+                //h.setWidth(50);
+                //h.setHeight(50);
+                playerHealth.addSpriteReuse(h);
+            }
 
             enemies = new SpriteList();
             enemy_missile_list = new SpriteList();
@@ -221,10 +228,11 @@ namespace Game1
             boom.Draw(spriteBatch);
             enemies.Draw(spriteBatch);
             enemy_missile_list.Draw(spriteBatch);
+            playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
-            spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
-            spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            //spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            //spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
             spriteBatch.End();
         }
@@ -321,6 +329,12 @@ namespace Game1
                 if (m.collision(spaceship) && m.active)
                 {
                     spaceship.hitPoints--;
+                    // updating health bar
+                    for (int i= 0;i < playerHealth.count(); i++)
+                    {
+                        if (i<spaceship.hitPoints) playerHealth[i].visible = true;
+                        else playerHealth[i].visible = false;
+                    }
                     m.active = false;
                     m.visible = false;
                     playBoomAnimation(m.collisionRect(spaceship));
