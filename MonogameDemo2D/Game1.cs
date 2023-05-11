@@ -17,6 +17,7 @@ namespace Game1
         int gameWindowHeight = 600;
 
         RC_GameStateManager levelManager;
+        public static int gameScore = 0;
 
         public static KeyboardState prevKeyState;
         public static KeyboardState keyState;

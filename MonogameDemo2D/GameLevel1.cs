@@ -62,7 +62,6 @@ namespace Game1
         LimitSound musicBackground;
 
         SpriteFont font1;
-        int gameScore = 0;
         int updateCounter = 0;
         int enemyAgression = 10;
         int baseHealth = 5;
@@ -231,6 +230,7 @@ namespace Game1
                 failScreen.setVisible(true);
             }
             base.Update(gameTime);
+            if (enemies.countActive() == 0) gameStateManager.pushLevel(3);
         }
 
         public override void Draw(GameTime gameTime)
@@ -247,7 +247,7 @@ namespace Game1
             enemy_missile_list.Draw(spriteBatch);
             playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
-            spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
             //spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
             //spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
@@ -336,7 +336,7 @@ namespace Game1
                     missile.active = false;
                     missile.visible = false;
                     limBoomSound.playSound();
-                    gameScore = gameScore + 10;
+                    Game1.gameScore = Game1.gameScore + 10;
                 }
             }
 
