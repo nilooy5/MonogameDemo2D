@@ -67,7 +67,7 @@ namespace Game1
         public override void LoadContent()
         {
             texBack = Util.texFromFile(graphicsDevice, Dir.dir + "scroll_back2.png");
-            texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "Spaceship3a.png");
+            texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "playerShip2_blue_2.png");
             texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "playerShip3_redL_Dark.png");
             texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
             texMissileEnemy = Util.texFromFile(graphicsDevice, Dir.dir + "missile2 - Copy.png");
@@ -277,8 +277,8 @@ namespace Game1
 
         private void setupSpaceship(Sprite3 spaceship)
         {
-            spaceship.setHeight(50);
-            spaceship.setWidth(100);
+            spaceship.setHeight(spaceship.getHeight()/1.5f);
+            spaceship.setWidth(spaceship.getWidth()/1.5f);
             spaceship.setBBToTexture();
             bottomLimit = gameWindowHeight - spaceship.getHeight();
         }
@@ -373,7 +373,7 @@ namespace Game1
         private void resetMissilePosition()
         {
             missile.state = 0;
-            missile.setPosX(spaceship.getPosX() + missile.getWidth());
+            missile.setPosX(spaceship.getPosX() + spaceship.getWidth() - missile.getWidth());
             missile.setPosY(spaceship.getPosY() + missileOffsetY);
             missile.setActive(true);
             missile.setVisible(false);
