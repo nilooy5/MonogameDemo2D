@@ -173,9 +173,11 @@ namespace Game1
             // check if any of the missiles have gone off the screen & reset them
             foreach (Sprite3 s in enemy_missile_list)
             {
-                if (s.state == 1 && s.getPosX() < 0)
+                if (s.state == 1 && (s.getPosX() < 0 || !s.active))
                 {
                     s.state = 0;
+                    s.active = true;
+                    s.setVisible(true);
                 }
             }
 
@@ -335,9 +337,14 @@ namespace Game1
                         if (i<spaceship.hitPoints) playerHealth[i].visible = true;
                         else playerHealth[i].visible = false;
                     }
-                    m.active = false;
-                    m.visible = false;
+
+                    // setting missile to inactive
+                    m.setActive(false);
+                    m.setVisible(false);
+                    m.state = 0;
+
                     playBoomAnimation(m.collisionRect(spaceship));
+
                     if (spaceship.hitPoints == 0)
                     {
                         spaceship.active = false;
