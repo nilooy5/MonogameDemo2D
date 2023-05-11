@@ -95,7 +95,7 @@ namespace Game1
 
         public override void LoadContent()
         {
-            texBack = Util.texFromFile(graphicsDevice, Dir.dir + "Back1.png");
+            texBack = Util.texFromFile(graphicsDevice, Dir.dir + "scroll_back2.png");
             texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "Spaceship3a.png");
             texMountain = Util.texFromFile(graphicsDevice, Dir.dir + "Mountain2.png");
             texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
