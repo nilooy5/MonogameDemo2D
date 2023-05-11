@@ -12,6 +12,7 @@ namespace Game1
 {
     class GameLevel_3_Pause : RC_GameStateParent
     {
+        Texture2D texBack = null;
 
         RC_RenderableList ren = new RC_RenderableList();
         Texture2D texG; //         
@@ -23,6 +24,7 @@ namespace Game1
             font1 = Content.Load<SpriteFont>("SpriteFont1");
             //texG = Util.texFromFile(graphicsDevice, Dir.dir + "Galaxy800x600.png");  //         
             //texP = Util.texFromFile(graphicsDevice, Dir.dir + "Policebox2Transparent.png");  // 
+            texBack = Util.texFromFile(graphicsDevice, Dir.dir + "galaxy_paused.png");
 
 
         }
@@ -56,6 +58,7 @@ namespace Game1
             spriteBatch.DrawString(font1, "level 3 - Pause Screen - press r to return", new Vector2(100, 100), Color.Brown);
             spriteBatch.DrawString(font1, "level 3 - Press Space for Renderables Test", new Vector2(100, 120), Color.Brown);
             spriteBatch.DrawString(font1, "level 3 - Press F2 for Background Test", new Vector2(100, 140), Color.Brown);
+            spriteBatch.Draw(texBack, new Vector2(-150, 0), Color.White);
 
             ren.Draw(spriteBatch);
             spriteBatch.End();
