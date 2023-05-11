@@ -62,6 +62,7 @@ namespace Game1
         int gameScore = 0;
         int updateCounter = 0;
         int enemyAgression = 10;
+        int baseHealth = 5;
         bool showBB = false;
 
         public override void LoadContent()
@@ -223,6 +224,7 @@ namespace Game1
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
             spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
             spriteBatch.End();
         }
@@ -280,6 +282,7 @@ namespace Game1
             spaceship.setHeight(spaceship.getHeight()/1.5f);
             spaceship.setWidth(spaceship.getWidth()/1.5f);
             spaceship.setBBToTexture();
+            spaceship.hitPoints = baseHealth;
             bottomLimit = gameWindowHeight - spaceship.getHeight();
         }
 
@@ -317,11 +320,18 @@ namespace Game1
             {
                 if (m.collision(spaceship) && m.active)
                 {
-                    playBoomAnimation(m.collisionRect(spaceship));
+                    spaceship.hitPoints--;
                     m.active = false;
                     m.visible = false;
-                    spaceship.active = false;
-                    spaceship.visible = false;
+                    playBoomAnimation(m.collisionRect(spaceship));
+                    if (spaceship.hitPoints == 0)
+                    {
+                        spaceship.active = false;
+                        spaceship.visible = false;
+                        pauseMovement();
+                        failScreen.setActive(true);
+                        failScreen.setVisible(true);
+                    }
                     limBoomSound.playSound();
                 }
             }
