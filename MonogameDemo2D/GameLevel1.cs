@@ -41,13 +41,13 @@ namespace Game1
         Texture2D texBack;
         Texture2D texSpaceShip;
         Texture2D texMissile;
+        Texture2D texMissileEnemy;
         Texture2D texTruck;
         Texture2D texFailScreen;
         Texture2D texBoom;
 
         Sprite3 spaceship = null;
         Sprite3 missile = null;
-        Sprite3 enemy_missile = null;
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
@@ -66,8 +66,9 @@ namespace Game1
         {
             texBack = Util.texFromFile(graphicsDevice, Dir.dir + "scroll_back2.png");
             texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "Spaceship3a.png");
-            texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "Truck1.png");
+            texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "playerShip3_redL.png");
             texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
+            texMissileEnemy = Util.texFromFile(graphicsDevice, Dir.dir + "missile2 - Copy.png");
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
 
@@ -76,15 +77,21 @@ namespace Game1
             boomSound = Content.Load<SoundEffect>("flack");
 
             enemies = new SpriteList();
+            enemy_missile_list = new SpriteList();
             //Create 5 sprites and put them into our list of enemies
             for (int i = 0; i < 5; i++)
             {
                 Sprite3 s = new Sprite3(true, texTruck, gameWindowWidth-100, 100 + (100 * i)); //create a sprite
-                s.setHeight(s.getHeight() / 10);
-                s.setWidth(s.getWidth() / 10);
+                Sprite3 m = new Sprite3(true, texMissileEnemy, gameWindowWidth - 100, 100 + (100 * i)); //create a sprite
+                s.setHeight(s.getHeight() / 2);
+                s.setWidth(s.getWidth() / 2);
                 s.setDeltaSpeed(new Vector2(0.3f, -5));//Set sprite speed
 
-                enemies.addSpriteReuse(s);//Add all sprites to the list                
+                m.setHeight(m.getHeight() / 10);
+                m.setWidth(m.getWidth() / 10);
+
+                enemies.addSpriteReuse(s);//Add all sprites to the list
+                enemy_missile_list.addSpriteReuse(m);//Add all sprites to the list
             }
 
             limBoomSound = new LimitSound(boomSound, 3);
@@ -95,7 +102,7 @@ namespace Game1
             setupSpaceship(spaceship);
 
             missile = new Sprite3(true, texMissile, 0, 0); //535x83
-            setupMissile(missile);
+            missile = setupMissile(missile);
 
             boom = new Sprite3(true, texBoom, 0, 0); //535x83
             setupBoom(boom);
@@ -114,12 +121,16 @@ namespace Game1
             //Move all of the active enemies in the list
             enemies.moveDeltaXY();
 
-            foreach (Sprite3 s in enemies)
+            for (int i = 0; i < enemies.count(); i++)
             {
-                if (s.active && !s.inside(playArea))//If the asteroid is not inside the playArea rectangle
+                if (enemies[i].active && !enemies[i].inside(playArea))//If the asteroid is not inside the playArea rectangle
                 {
-                    s.setDeltaSpeed(s.getDeltaSpeed() * -1);//Reverse the direction (mirroring)
+                    enemies[i].setDeltaSpeed(enemies[i].getDeltaSpeed() * -1);//Reverse the direction (mirroring)
                 }
+                enemy_missile_list[i].setPosX(enemies[i].getPosX());
+                enemy_missile_list[i].setPosY(enemies[i].getPosY() + 18);
+                enemy_missile_list[i].active = enemies[i].active;
+                enemy_missile_list[i].setVisible(enemies[i].active);
             }
 
             handleSpaceshipMovement(Game1.keyState);
@@ -170,13 +181,14 @@ namespace Game1
             failScreen.Draw(spriteBatch);
             boom.Draw(spriteBatch);
             enemies.Draw(spriteBatch);
+            enemy_missile_list.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2.5f, SpriteEffects.None, 0);
 
             spriteBatch.End();
         }
 
-        private void setupMissile(Sprite3 missile)
+        private Sprite3 setupMissile(Sprite3 missile)
         {
             missile.setWidthHeightOfTex(535, 83);
             missile.setXframes(3);
@@ -193,6 +205,7 @@ namespace Game1
             missile.setAnimFinished(0); // this is the default but - explicit for the tutorial
             missile.setPos(spaceship.getPosX() + spaceship.getWidth() - missile.getWidth(), spaceship.getPosY() + missileOffsetY);
             missile.animationStart();
+            return missile;
         }
 
         private void setupBoom(Sprite3 boom)
@@ -278,6 +291,11 @@ namespace Game1
             boom.drawBB(spriteBatch, Color.Green);
             boom.drawHS(spriteBatch, Color.Red);
             foreach (Sprite3 s in enemies)
+            {
+                s.drawBB(spriteBatch, Color.Green);
+                s.drawHS(spriteBatch, Color.Red);
+            }
+            foreach (Sprite3 s in enemy_missile_list)
             {
                 s.drawBB(spriteBatch, Color.Green);
                 s.drawHS(spriteBatch, Color.Red);
