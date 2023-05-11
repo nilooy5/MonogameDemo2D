@@ -40,15 +40,13 @@ namespace Game1
 
         Texture2D texBack;
         Texture2D texSpaceShip;
-        Texture2D texMountain;
         Texture2D texMissile;
         Texture2D texTruck;
         Texture2D texFailScreen;
         Texture2D texBoom;
+
         Sprite3 spaceship = null;
-        Sprite3 mountain = null;
         Sprite3 missile = null;
-        Sprite3 truck = null;
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
@@ -66,9 +64,8 @@ namespace Game1
         {
             texBack = Util.texFromFile(graphicsDevice, Dir.dir + "scroll_back2.png");
             texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "Spaceship3a.png");
-            texMountain = Util.texFromFile(graphicsDevice, Dir.dir + "Mountain2.png");
-            texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
             texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "Truck1.png");
+            texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
 
@@ -97,12 +94,6 @@ namespace Game1
 
             missile = new Sprite3(true, texMissile, 0, 0); //535x83
             setupMissile(missile);
-
-            mountain = new Sprite3(true, texMountain, 700, 0);
-            setupMountains();
-
-            truck = new Sprite3(true, texTruck, 0, 0);
-            setupTruck(truck, 10, mountain.getPosX(), mountain.getPosY() - mountain.getHeight());
 
             boom = new Sprite3(true, texBoom, 0, 0); //535x83
             setupBoom(boom);
@@ -137,9 +128,6 @@ namespace Game1
             if (Game1.keyState.IsKeyDown(Keys.Left)) ssXSpeed = 3f;
             if (Game1.prevKeyState.IsKeyUp(Keys.Left)) ssXSpeed = defaultXspeed;
 
-            // updating obstacles position
-            updateObstaclesPosition();
-
             missile.animationTick(gameTime);
 
             if (missile.state == 0)
@@ -155,8 +143,6 @@ namespace Game1
                 missile.setVisible(true);
                 moveMissile();
             }
-
-            boom.setPosX(truck.getPosX());
 
             boom.animationTick(gameTime);
 
@@ -179,9 +165,7 @@ namespace Game1
 
             skyBack.Draw(spriteBatch);
             spaceship.Draw(spriteBatch);
-            mountain.Draw(spriteBatch);
             missile.Draw(spriteBatch);
-            truck.Draw(spriteBatch);
             failScreen.Draw(spriteBatch);
             boom.Draw(spriteBatch);
             enemies.Draw(spriteBatch);
@@ -232,8 +216,7 @@ namespace Game1
             }
 
             boom.setAnimationSequence(boomAnim, 20, 20, 5);
-            // boom.setAnimFinished(1);
-            boom.setPos(truck.getPosX(), mountain.getPosY() - 100);
+            boom.setPos(0,0);
             boom.animationStart();
         }
 
@@ -243,19 +226,6 @@ namespace Game1
             spaceship.setWidth(100);
             spaceship.setBBToTexture();
             bottomLimit = gameWindowHeight - spaceship.getHeight();
-        }
-
-        private void setupMountains()
-        {
-            mountain.setPosY(gameWindowHeight - mountain.getHeight());
-        }
-
-        private void setupTruck(Sprite3 truck, int shrinkFactor, float baseX, float baseY)
-        {
-            truck.setHeight(truck.getHeight() / shrinkFactor);
-            truck.setWidth(truck.getWidth() / shrinkFactor);
-            truck.setPosX(baseX);
-            truck.setPosY(baseY + truck.getHeight() + 10);
         }
 
         private void handleSpaceshipMovement(KeyboardState k)
@@ -270,77 +240,20 @@ namespace Game1
             }
         }
 
-        private void updateObstaclesPosition()
-        {
-            if (mountain.getPosX() < -mountain.getWidth())
-            {
-                mountain.setPosX(gameWindowWidth);
-            }
-            else mountain.setPosX(mountain.getPosX() - ssXSpeed);
-
-            if (truck.getPosX() < -truck.getWidth())
-            {
-                // updateMissedCounter();
-                if (!truck.active)
-                {
-                    truck.setActive(true);
-                    truck.visible = true;
-                    boom.active = true;
-                }
-                truck.setPosX(gameWindowWidth);
-            }
-            else truck.setPosX(mountain.getPosX() - ssXSpeed);
-        }
-
-        /// <summary>
-        /// counts the number of missed trucks and calculates scores based on it
-        /// </summary>
-        private void updateMissedCounter()
-        {
-            if (truck.getActive() && (truck.getPosX() < -mountain.getWidth()))
-            {
-                missedCounter++;
-            }
-        }
-
         private void checkColilssions(GameTime gameTime, Vector2[] boomAnim)
         {
-
-            bool ssCollidedWithMountain = mountain.collision(spaceship);
-            bool ssCollidesWithTruck = truck.collision(spaceship);
-            bool missileCollidesWithTruck = truck.collision(missile) && truck.active;
 
             foreach (Sprite3 e in enemies) 
             { 
                 if (e.collision(missile) && e.active)
                 {
+                    playBoomAnimation(e.collisionRect(missile));
                     e.active = false;
                     e.visible = false;
                     missile.active = false;
                     missile.visible = false;
                     gameScore = gameScore + 10;
                 }
-            }
-
-            if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
-            {
-                playBoomAnimation();
-                limBoomSound.playSoundIfOk();
-                spaceship.active = false;
-                spaceship.visible = false;
-                pauseMovement();
-                failScreen.visible = true;
-            }
-            if (missileCollidesWithTruck)
-            {
-                playBoomAnimation();
-                limBoomSound.playSoundIfOk();
-                gameScore = gameScore + 25;
-                limBoomSound.Update(gameTime);
-                truck.active = false;
-                truck.visible = false;
-                missile.visible = false;
-                missile.active = false;
             }
         }
 
@@ -356,12 +269,8 @@ namespace Game1
         {
             spaceship.drawBB(spriteBatch, Color.Green);
             spaceship.drawHS(spriteBatch, Color.Red);
-            mountain.drawBB(spriteBatch, Color.Green);
-            mountain.drawHS(spriteBatch, Color.Red);
             missile.drawBB(spriteBatch, Color.Green);
             missile.drawHS(spriteBatch, Color.Red);
-            truck.drawBB(spriteBatch, Color.Green);
-            truck.drawHS(spriteBatch, Color.Red);
             boom.drawBB(spriteBatch, Color.Green);
             boom.drawHS(spriteBatch, Color.Red);
             foreach (Sprite3 s in enemies)
@@ -371,8 +280,9 @@ namespace Game1
             }
         }
 
-        private void playBoomAnimation()
+        private void playBoomAnimation(Rectangle? colRect)
         {
+            boom.setPos(colRect.Value.X-boom.getWidth()/2, colRect.Value.Y - boom.getHeight()/2);
             boom.setVisible(true);
             boom.setAnimationSequence(boomAnim, 0, 20, 5);
             boom.setAnimFinished(1);
