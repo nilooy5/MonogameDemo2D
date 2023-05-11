@@ -53,6 +53,10 @@ namespace Game1
             levelManager.getLevel(1).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(1).LoadContent();
 
+            levelManager.AddLevel(3, new GameLevel_3_Pause());
+            levelManager.getLevel(3).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
+            levelManager.getLevel(3).LoadContent();
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -63,9 +67,6 @@ namespace Game1
 
             prevKeyState = keyState;
             keyState = Keyboard.GetState();
-
-            // previousMouseState = currentMouseState;
-            // currentMouseState = Mouse.GetState();
 
             if (keyState.IsKeyDown(Keys.Escape)) this.Exit();
 

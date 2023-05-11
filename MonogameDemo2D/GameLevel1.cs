@@ -22,6 +22,7 @@ namespace Game1
 
         int gameWindowWidth = 800;
         int gameWindowHeight = 600;
+        Rectangle playArea = new Rectangle(1, 1, 799, 598);
 
         int missileHeight = 25;
         int missileWidth = 50;
@@ -51,6 +52,8 @@ namespace Game1
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
+        SpriteList enemies;
+
         ScrollBackGround skyBack = null;
 
         SoundEffect boomSound;
@@ -68,6 +71,19 @@ namespace Game1
             texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "Truck1.png");
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
+
+            enemies = new SpriteList();
+
+            //Create 5 sprites and put them into our list of enemies
+            for (int i = 0; i < 5; i++)
+            {
+                Sprite3 s = new Sprite3(true, texTruck, gameWindowWidth-100, 100 + (100 * i)); //create a sprite
+                s.setHeight(s.getHeight() / 10);
+                s.setWidth(s.getWidth() / 10);
+                s.setDeltaSpeed(new Vector2(0.3f, -5));//Set sprite speed
+
+                enemies.addSpriteReuse(s);//Add all sprites to the list                
+            }
 
             font1 = Content.Load<SpriteFont>("SpriteFont1");
 
@@ -96,7 +112,22 @@ namespace Game1
 
         public override void Update(GameTime gameTime)
         {
+            if (Game1.keyState.IsKeyDown(Keys.P) && !Game1.prevKeyState.IsKeyDown(Keys.P))
+            {
+                gameStateManager.pushLevel(3);
+            }
             skyBack.Update(gameTime);
+
+            //Move all of the active enemies in the list
+            enemies.moveDeltaXY();
+
+            foreach (Sprite3 s in enemies)
+            {
+                if (s.active && !s.inside(playArea))//If the asteroid is not inside the playArea rectangle
+                {
+                    s.setDeltaSpeed(s.getDeltaSpeed() * -1);//Reverse the direction (mirroring)
+                }
+            }
 
             handleSpaceshipMovement(Game1.keyState);
 
@@ -153,6 +184,7 @@ namespace Game1
             truck.Draw(spriteBatch);
             failScreen.Draw(spriteBatch);
             boom.Draw(spriteBatch);
+            enemies.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2.5f, SpriteEffects.None, 0);
 
@@ -278,6 +310,18 @@ namespace Game1
             bool ssCollidesWithTruck = truck.collision(spaceship);
             bool missileCollidesWithTruck = truck.collision(missile) && truck.active;
 
+            foreach (Sprite3 e in enemies) 
+            { 
+                if (e.collision(missile) && e.active)
+                {
+                    e.active = false;
+                    e.visible = false;
+                    missile.active = false;
+                    missile.visible = false;
+                    gameScore = gameScore + 10;
+                }
+            }
+
             if (ssCollidedWithMountain || (truck.getActive() && ssCollidesWithTruck))
             {
                 playBoomAnimation();
@@ -320,6 +364,11 @@ namespace Game1
             truck.drawHS(spriteBatch, Color.Red);
             boom.drawBB(spriteBatch, Color.Green);
             boom.drawHS(spriteBatch, Color.Red);
+            foreach (Sprite3 s in enemies)
+            {
+                s.drawBB(spriteBatch, Color.Green);
+                s.drawHS(spriteBatch, Color.Red);
+            }
         }
 
         private void playBoomAnimation()
