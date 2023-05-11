@@ -230,7 +230,7 @@ namespace Game1
                 failScreen.setVisible(true);
             }
             base.Update(gameTime);
-            if (enemies.countActive() == 0) gameStateManager.pushLevel(3);
+            if (enemies.countActive() == 0) gameStateManager.pushLevel(2);
         }
 
         public override void Draw(GameTime gameTime)

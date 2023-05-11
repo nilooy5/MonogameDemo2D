@@ -54,6 +54,10 @@ namespace Game1
             levelManager.getLevel(1).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(1).LoadContent();
 
+            levelManager.AddLevel(2, new GameLevel_2_Cleared());
+            levelManager.getLevel(2).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
+            levelManager.getLevel(2).LoadContent();
+
             levelManager.AddLevel(3, new GameLevel_3_Pause());
             levelManager.getLevel(3).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(3).LoadContent();
