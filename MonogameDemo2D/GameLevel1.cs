@@ -124,7 +124,7 @@ namespace Game1
         public override void Update(GameTime gameTime)
         {
             updateCounter++;
-            if (Game1.keyState.IsKeyDown(Keys.P) && !Game1.prevKeyState.IsKeyDown(Keys.P))
+            if (Game1.keyState.IsKeyDown(Keys.Q) && !Game1.prevKeyState.IsKeyDown(Keys.Q))
             {
                 gameStateManager.pushLevel(3);
             }

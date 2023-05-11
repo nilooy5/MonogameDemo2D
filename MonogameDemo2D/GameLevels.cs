@@ -19,16 +19,18 @@ namespace Game1
 
     class GameLevel_0 : RC_GameStateParent
     {
+        Texture2D texBack = null;
 
         public override void LoadContent()
         {
             font1 = Content.Load<SpriteFont>("spritefont1");
+            texBack = Util.texFromFile(graphicsDevice, Dir.dir + "galaxy_title_small.png");
         }
 
         public override void Update(GameTime gameTime)
         {
 
-            if (Game1.keyState.IsKeyDown(Keys.N) && !Game1.prevKeyState.IsKeyDown(Keys.N))
+            if (Game1.keyState.IsKeyDown(Keys.S) && !Game1.prevKeyState.IsKeyDown(Keys.S))
             {
                 gameStateManager.setLevel(1);
             }
@@ -38,7 +40,7 @@ namespace Game1
         {
             graphicsDevice.Clear(Color.Aqua);
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-            spriteBatch.DrawString(font1, "level 0 - press n to go to next level", new Vector2(100, 100), Color.Brown);
+            spriteBatch.Draw(texBack, new Vector2(-150, 0), Color.White);
             spriteBatch.End();
         }
 
