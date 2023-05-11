@@ -22,6 +22,12 @@ namespace Game1
             {
                 gameStateManager.popLevel();
             }
+
+            if (Game1.keyState.IsKeyDown(Keys.S) && !Game1.prevKeyState.IsKeyDown(Keys.S))
+            {
+                gameStateManager.popLevel();
+                gameStateManager.setLevel(4);
+            }
         }
 
         public override void Draw(GameTime gameTime)

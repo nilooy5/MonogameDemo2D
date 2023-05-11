@@ -62,6 +62,10 @@ namespace Game1
             levelManager.getLevel(3).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(3).LoadContent();
 
+            levelManager.AddLevel(4, new GameLevel_4_Boss());
+            levelManager.getLevel(4).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
+            levelManager.getLevel(4).LoadContent();
+
         }
 
         protected override void Update(GameTime gameTime)
