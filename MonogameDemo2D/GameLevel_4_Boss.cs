@@ -46,9 +46,9 @@ namespace Game1
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
-        SpriteList enemies;
-        SpriteList enemy_missile_list;
         SpriteList playerHealth = null;
+        SpriteList bossBody = null;
+        SpriteList bossMissileList = null;
 
         ScrollBackGround skyBack = null;
 
@@ -76,12 +76,44 @@ namespace Game1
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
             playerLifeTex = Util.texFromFile(graphicsDevice, Dir.dir + "playerLife1_green.png");
+            Texture2D texEnemyHead = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack2.png");
+            Texture2D texEnemyChest = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack5.png");
+            Texture2D texEnemyLegs = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack3.png");
 
             font1 = Content.Load<SpriteFont>("SpriteFont1");
 
             boomSound = Content.Load<SoundEffect>("flack");
             music = Content.Load<SoundEffect>("chopsticks");
             shootSound = Content.Load<SoundEffect>("shoot");
+
+            bossBody = new SpriteList();
+            Sprite3 head = new Sprite3(true, texEnemyHead, gameWindowWidth - 200, 200 + (100 * 0));
+            Sprite3 chest = new Sprite3(true, texEnemyChest, gameWindowWidth - 200, 200 + (100 * 1));
+            Sprite3 legs = new Sprite3(true, texEnemyLegs, gameWindowWidth - 200, 200 + (100 * 2));
+            head.setHeight(head.getHeight() * 1.5f);
+            head.setWidth(head.getWidth() * 1.5f);
+            chest.setHeight(chest.getHeight() * 1.5f);
+            chest.setWidth(chest.getWidth() * 1.5f);
+            legs.setHeight(legs.getHeight() * 1.5f);
+            legs.setWidth(legs.getWidth() * 1.5f);
+            head.hitPoints = baseHealth + 2;
+            chest.hitPoints = baseHealth + 2;
+            legs.hitPoints = baseHealth + 2;
+            bossBody.addSpriteReuse(head);
+            bossBody.addSpriteReuse(chest);
+            bossBody.addSpriteReuse(legs);
+
+            bossMissileList = new SpriteList();
+            for (int i = 0; i < 5; i++)
+            {
+                Sprite3 m = new Sprite3(true, texMissileEnemy, gameWindowWidth - 100, 100 + (100 * i)); //create a sprite
+
+                m.setHeight(m.getHeight() / 10);
+                m.setWidth(m.getWidth() / 10);
+                m.state = 0;
+                bossMissileList.addSpriteReuse(m);//Add all sprites to the list
+            }
+
 
             playerHealth = new SpriteList();
             for (int i = 0; i < baseHealth; i++)
@@ -90,25 +122,6 @@ namespace Game1
                 //h.setWidth(50);
                 //h.setHeight(50);
                 playerHealth.addSpriteReuse(h);
-            }
-
-            enemies = new SpriteList();
-            enemy_missile_list = new SpriteList();
-            //Create 5 sprites and put them into our list of enemies
-            for (int i = 0; i < 5; i++)
-            {
-                Sprite3 s = new Sprite3(true, texTruck, gameWindowWidth - 100, 100 + (100 * i)); //create a sprite
-                Sprite3 m = new Sprite3(true, texMissileEnemy, gameWindowWidth - 100, 100 + (100 * i)); //create a sprite
-                s.setHeight(s.getHeight() / 2);
-                s.setWidth(s.getWidth() / 2);
-                s.setDeltaSpeed(new Vector2(0.3f, -5));//Set sprite speed
-
-                m.setHeight(m.getHeight() / 10);
-                m.setWidth(m.getWidth() / 10);
-                m.state = 0;
-
-                enemies.addSpriteReuse(s);//Add all sprites to the list
-                enemy_missile_list.addSpriteReuse(m);//Add all sprites to the list
             }
 
             limBoomSound = new LimitSound(boomSound, 10);
@@ -139,58 +152,35 @@ namespace Game1
             }
             skyBack.Update(gameTime);
 
-            //Move all of the active enemies in the list
-            enemies.moveDeltaXY();
-
-            for (int i = 0; i < enemies.count(); i++)
+            //bossMissileList.moveDeltaXY();
+            for (int i = 0; i < bossMissileList.count(); i++)
             {
-                if (enemies[i].active && !enemies[i].inside(playArea))//If the asteroid is not inside the playArea rectangle
+                if (!bossMissileList[i].inside(playArea))
                 {
-                    enemies[i].setDeltaSpeed(enemies[i].getDeltaSpeed() * -1);//Reverse the direction (mirroring)
+                    bossMissileList[i].setPosX(gameWindowWidth - 100);
+                    bossMissileList[i].setPosY(100 + (100 * i));
+                    bossMissileList[i].state = 0;
                 }
-                if (enemy_missile_list[i].state == 0)
+                if (updateCounter % 200 == 0)
                 {
-                    enemy_missile_list[i].setPosX(enemies[i].getPosX());
-                    enemy_missile_list[i].setPosY(enemies[i].getPosY() + 18);
-                    enemy_missile_list[i].active = enemies[i].active;
-                    enemy_missile_list[i].setVisible(enemies[i].active);
+                    bossMissileList[i].state = 1;
                 }
-            }
-            if (updateCounter % enemyAgression == 0)
-            {
-                // get a random number between 0 and 4
-                Random random = new Random();
-                int randomNumber = random.Next(0, 5);
-                for (int i = 0; i < enemies.count(); i++)
+                if (bossMissileList[i].state == 1)
                 {
-                    if (i == randomNumber)
+                    if (Game1.keyState.IsKeyDown(Keys.A))
                     {
-                        enemy_missile_list[i].state = 1;
+                        bossMissileList[i].moveTo(new Vector2(spaceship.getPosX() - 200, spaceship.getPosY() - 100), 5f, false);
+                    }
+                    else
+                    {
+                        bossMissileList[i].moveTo(new Vector2(spaceship.getPosX() + spaceship.getWidth() / 2, spaceship.getPosY() + spaceship.getHeight() / 2), 5f, false);
                     }
                 }
             }
 
-            // Move all the missiles of active enemies
-            foreach (Sprite3 s in enemy_missile_list)
-            {
-                if (s.state == 1)
-                {
-                    s.setPosX(s.getPosX() - missileSpeedX + 10);
-                }
-            }
-
-            // check if any of the missiles have gone off the screen & reset them
-            foreach (Sprite3 s in enemy_missile_list)
-            {
-                if (s.state == 1 && (s.getPosX() < 0 || !s.active))
-                {
-                    s.state = 0;
-                    s.active = true;
-                    s.setVisible(true);
-                }
-            }
-
             handleSpaceshipMovement(Game1.keyState);
+
+            checkColilssions(gameTime, boomAnim);
 
             if (Game1.keyState.IsKeyDown(Keys.B) && !Game1.prevKeyState.IsKeyDown(Keys.B)) showBB = !showBB;
 
@@ -220,16 +210,17 @@ namespace Game1
 
             boom.animationTick(gameTime);
 
-            checkColilssions(gameTime, boomAnim);
-
             if (missedCounter > 3)
             {
                 pauseMovement();
                 failScreen.setActive(true);
                 failScreen.setVisible(true);
             }
+            if(bossBody.countActive() == 0) 
+            {
+                gameStateManager.pushLevel(5);
+            }
             base.Update(gameTime);
-            if (enemies.countActive() == 0) gameStateManager.pushLevel(2);
         }
 
         public override void Draw(GameTime gameTime)
@@ -242,8 +233,10 @@ namespace Game1
             missile.Draw(spriteBatch);
             failScreen.Draw(spriteBatch);
             boom.Draw(spriteBatch);
-            enemies.Draw(spriteBatch);
-            enemy_missile_list.Draw(spriteBatch);
+            //enemies.Draw(spriteBatch);
+            //enemy_missile_list.Draw(spriteBatch);
+            bossBody.Draw(spriteBatch);
+            bossMissileList.Draw(spriteBatch);
             playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
@@ -251,6 +244,60 @@ namespace Game1
             //spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
             spriteBatch.End();
+        }
+
+        private void checkColilssions(GameTime gameTime, Vector2[] boomAnim)
+        {
+
+            foreach (Sprite3 e in bossBody)
+            {
+                if (e.collision(missile) && e.active)
+                {
+                    missile.active = false;
+                    missile.visible = false;
+                    e.hitPoints--;
+                    if (e.hitPoints == 0)
+                    {
+                        e.active = false;
+                        e.visible = false;
+                        Game1.gameScore = Game1.gameScore + 100;
+                    }
+                    playBoomAnimation(e.collisionRect(missile));
+                    limBoomSound.playSound();
+                    Game1.gameScore = Game1.gameScore + 10;
+                }
+            }
+            // checking for collisions between enemy missiles and spaceship
+            foreach (Sprite3 m in bossMissileList)
+            {
+                if (m.collision(spaceship) && m.active)
+                {
+                    spaceship.hitPoints--;
+                    // updating health bar
+                    for (int i = 0; i < playerHealth.count(); i++)
+                    {
+                        if (i < spaceship.hitPoints) playerHealth[i].visible = true;
+                        else playerHealth[i].visible = false;
+                    }
+
+                    // setting missile to inactive
+                    m.setActive(false);
+                    m.setVisible(false);
+                    m.state = 0;
+
+                    playBoomAnimation(m.collisionRect(spaceship));
+
+                    if (spaceship.hitPoints == 0)
+                    {
+                        spaceship.active = false;
+                        spaceship.visible = false;
+                        pauseMovement();
+                        failScreen.setActive(true);
+                        failScreen.setVisible(true);
+                    }
+                    limBoomSound.playSound();
+                }
+            }
         }
 
         private Sprite3 setupMissile(Sprite3 missile)
@@ -322,55 +369,6 @@ namespace Game1
             }
         }
 
-        private void checkColilssions(GameTime gameTime, Vector2[] boomAnim)
-        {
-
-            foreach (Sprite3 e in enemies)
-            {
-                if (e.collision(missile) && e.active)
-                {
-                    playBoomAnimation(e.collisionRect(missile));
-                    e.active = false;
-                    e.visible = false;
-                    missile.active = false;
-                    missile.visible = false;
-                    limBoomSound.playSound();
-                    Game1.gameScore = Game1.gameScore + 10;
-                }
-            }
-
-            // checking for collisions between enemy missiles and spaceship
-            foreach (Sprite3 m in enemy_missile_list)
-            {
-                if (m.collision(spaceship) && m.active)
-                {
-                    spaceship.hitPoints--;
-                    // updating health bar
-                    for (int i = 0; i < playerHealth.count(); i++)
-                    {
-                        if (i < spaceship.hitPoints) playerHealth[i].visible = true;
-                        else playerHealth[i].visible = false;
-                    }
-
-                    // setting missile to inactive
-                    m.setActive(false);
-                    m.setVisible(false);
-                    m.state = 0;
-
-                    playBoomAnimation(m.collisionRect(spaceship));
-
-                    if (spaceship.hitPoints == 0)
-                    {
-                        spaceship.active = false;
-                        spaceship.visible = false;
-                        pauseMovement();
-                        failScreen.setActive(true);
-                        failScreen.setVisible(true);
-                    }
-                    limBoomSound.playSound();
-                }
-            }
-        }
 
         private void pauseMovement()
         {
@@ -388,12 +386,7 @@ namespace Game1
             missile.drawHS(spriteBatch, Color.Red);
             boom.drawBB(spriteBatch, Color.Green);
             boom.drawHS(spriteBatch, Color.Red);
-            foreach (Sprite3 s in enemies)
-            {
-                s.drawBB(spriteBatch, Color.Green);
-                s.drawHS(spriteBatch, Color.Red);
-            }
-            foreach (Sprite3 s in enemy_missile_list)
+            foreach (Sprite3 s in bossBody)
             {
                 s.drawBB(spriteBatch, Color.Green);
                 s.drawHS(spriteBatch, Color.Red);

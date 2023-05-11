@@ -48,7 +48,7 @@ namespace Game1
             levelManager.AddLevel(0, new GameLevel_0());
             levelManager.getLevel(0).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(0).LoadContent();
-            levelManager.setLevel(0);
+            //levelManager.setLevel(0); // uncomment this line to start at level 0
 
             levelManager.AddLevel(1, new GameLevel_1());
             levelManager.getLevel(1).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
@@ -65,6 +65,11 @@ namespace Game1
             levelManager.AddLevel(4, new GameLevel_4_Boss());
             levelManager.getLevel(4).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
             levelManager.getLevel(4).LoadContent();
+            levelManager.setLevel(4); // remove this line to start at level 0
+
+            levelManager.AddLevel(5, new GameLevel_5_Finished());
+            levelManager.getLevel(5).InitializeLevel(GraphicsDevice, spriteBatch, Content, levelManager);
+            levelManager.getLevel(5).LoadContent();
 
         }
 
