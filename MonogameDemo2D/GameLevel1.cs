@@ -47,10 +47,12 @@ namespace Game1
 
         Sprite3 spaceship = null;
         Sprite3 missile = null;
+        Sprite3 enemy_missile = null;
         Sprite3 failScreen = null;
         Sprite3 boom = null;
 
         SpriteList enemies;
+        SpriteList enemy_missile_list;
 
         ScrollBackGround skyBack = null;
 
@@ -69,8 +71,11 @@ namespace Game1
             texFailScreen = Util.texFromFile(graphicsDevice, Dir.dir + "fail_screen.png");
             texBoom = Util.texFromFile(graphicsDevice, Dir.dir + "Boom6.png");
 
-            enemies = new SpriteList();
+            font1 = Content.Load<SpriteFont>("SpriteFont1");
 
+            boomSound = Content.Load<SoundEffect>("flack");
+
+            enemies = new SpriteList();
             //Create 5 sprites and put them into our list of enemies
             for (int i = 0; i < 5; i++)
             {
@@ -82,9 +87,6 @@ namespace Game1
                 enemies.addSpriteReuse(s);//Add all sprites to the list                
             }
 
-            font1 = Content.Load<SpriteFont>("SpriteFont1");
-
-            boomSound = Content.Load<SoundEffect>("flack");
             limBoomSound = new LimitSound(boomSound, 3);
 
             skyBack = new ScrollBackGround(texBack, texBack.Bounds, new Rectangle(0, 0, gameWindowWidth, gameWindowHeight), -5f, 2);
@@ -160,7 +162,6 @@ namespace Game1
         public override void Draw(GameTime gameTime)
         {
             graphicsDevice.Clear(Color.CornflowerBlue);
-
             spriteBatch.Begin();
 
             skyBack.Draw(spriteBatch);
@@ -205,6 +206,8 @@ namespace Game1
             boom.setYframes(boomYframes);
             boom.setWidthHeight(boomWidth / boomXframes, boomHeight / boomYframes);
             boom.setBBToWH();
+            boom.setHeight(boom.getHeight()/2);
+            boom.setWidth(boom.getWidth()/2);
 
             for (int i = 0; i < boomYframes; i++)
             {
@@ -252,6 +255,7 @@ namespace Game1
                     e.visible = false;
                     missile.active = false;
                     missile.visible = false;
+                    limBoomSound.playSound();
                     gameScore = gameScore + 10;
                 }
             }
