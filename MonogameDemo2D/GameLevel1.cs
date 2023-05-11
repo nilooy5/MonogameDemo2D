@@ -54,7 +54,13 @@ namespace Game1
         ScrollBackGround skyBack = null;
 
         SoundEffect boomSound;
+        SoundEffect music;
+        SoundEffect shootSound;
+
         LimitSound limBoomSound;
+        LimitSound limShootSound;
+        LimitSound musicBackground;
+
         SpriteFont font1;
         int gameScore = 0;
         int updateCounter = 0;
@@ -76,6 +82,8 @@ namespace Game1
             font1 = Content.Load<SpriteFont>("SpriteFont1");
 
             boomSound = Content.Load<SoundEffect>("flack");
+            music = Content.Load<SoundEffect>("chopsticks");
+            shootSound = Content.Load<SoundEffect>("shoot");
 
             playerHealth = new SpriteList();
             for (int i = 0; i < baseHealth; i++)
@@ -105,7 +113,10 @@ namespace Game1
                 enemy_missile_list.addSpriteReuse(m);//Add all sprites to the list
             }
 
-            limBoomSound = new LimitSound(boomSound, 3);
+            limBoomSound = new LimitSound(boomSound, 10);
+            limShootSound = new LimitSound(shootSound, 10);
+            musicBackground = new LimitSound(music, 1);
+            musicBackground.playSound();
 
             skyBack = new ScrollBackGround(texBack, texBack.Bounds, new Rectangle(0, 0, gameWindowWidth, gameWindowHeight), -5f, 2);
 
@@ -197,7 +208,11 @@ namespace Game1
                 missile.setPosY(spaceship.getPosY() + missileOffsetY);
             }
 
-            if (Game1.keyState.IsKeyDown(Keys.F)) missile.state = 1;
+            if (Game1.keyState.IsKeyDown(Keys.F)) 
+            {
+                limShootSound.playSound();
+                missile.state = 1;
+            }
 
             if (missile.state == 1)
             {

@@ -13,11 +13,29 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin chopsticks.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:chopsticks.wav
+
+#begin dungeon.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:dungeon.wav
+
 #begin flack.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:flack.wav
+
+#begin shoot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:shoot.wav
 
 #begin SpriteFont1.spritefont
 /importer:FontDescriptionImporter
