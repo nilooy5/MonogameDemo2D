@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using RC_Framework;
+using System;
 
 namespace Game1
 {
@@ -56,7 +57,7 @@ namespace Game1
         SoundEffect music;
         SoundEffect shootSound;
 
-        int shieldDuration = 10;
+        int shieldDuration = 15;
         int shieldInputCounter = 0;
 
         LimitSound limBoomSound;
@@ -68,6 +69,15 @@ namespace Game1
         int enemyAgression = 10;
         int baseHealth = 5;
         bool showBB = false;
+
+        ParticleSystem particleSys1;
+        ParticleSystem particleSys2;
+        ParticleSystem particleSys3;
+        ParticleSystem particleSys4;
+        ParticleSystem particleSys5;
+        Rectangle rectangle = new Rectangle(0, 0, 800, 600);
+
+        Texture2D particleTex;
 
         public override void LoadContent()
         {
@@ -83,6 +93,7 @@ namespace Game1
             Texture2D texEnemyHead = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack2.png");
             Texture2D texEnemyChest = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack5.png");
             Texture2D texEnemyLegs = Util.texFromFile(graphicsDevice, Dir.dir + "enemyBlack3.png");
+            particleTex = Util.texFromFile(graphicsDevice, Dir.dir + "Particle2.png");
 
             font1 = Content.Load<SpriteFont>("SpriteFont1");
 
@@ -150,6 +161,8 @@ namespace Game1
             setupBoom(boom);
 
             failScreen = new Sprite3(false, texFailScreen, 0, 0);
+
+            setParticleSystems();
         }
 
         public override void Update(GameTime gameTime)
@@ -228,6 +241,21 @@ namespace Game1
             {
                 gameStateManager.pushLevel(5);
             }
+
+            particleSys1.sysPos = new Vector2(bossMissileList[0].getPosX() + bossMissileList[0].getWidth(), bossMissileList[0].getPosY() + bossMissileList[0].getHeight() / 2);
+            particleSys2.sysPos = new Vector2(bossMissileList[1].getPosX() + bossMissileList[1].getWidth(), bossMissileList[1].getPosY() + bossMissileList[1].getHeight() / 2);
+            particleSys3.sysPos = new Vector2(bossMissileList[2].getPosX() + bossMissileList[2].getWidth(), bossMissileList[2].getPosY() + bossMissileList[2].getHeight() / 2);
+            particleSys4.sysPos = new Vector2(bossMissileList[3].getPosX() + bossMissileList[3].getWidth(), bossMissileList[3].getPosY() + bossMissileList[3].getHeight() / 2);
+            particleSys5.sysPos = new Vector2(bossMissileList[4].getPosX() + bossMissileList[4].getWidth(), bossMissileList[4].getPosY() + bossMissileList[4].getHeight() / 2);
+
+
+            particleSys1.Update(gameTime);
+            particleSys2.Update(gameTime);
+            particleSys3.Update(gameTime);
+            particleSys4.Update(gameTime);
+            particleSys5.Update(gameTime);
+
+
             base.Update(gameTime);
         }
 
@@ -249,6 +277,12 @@ namespace Game1
             spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
             spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
             spriteBatch.DrawString(font1, "shield pressed: " + shieldInputCounter, new Vector2(10, 40), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
+
+            particleSys1.Draw(spriteBatch);
+            particleSys2.Draw(spriteBatch);
+            particleSys3.Draw(spriteBatch);
+            particleSys4.Draw(spriteBatch);
+            particleSys5.Draw(spriteBatch);
 
             spriteBatch.End();
         }
@@ -452,6 +486,55 @@ namespace Game1
             missile.setPosY(spaceship.getPosY() + missileOffsetY);
             missile.setActive(true);
             missile.setVisible(false);
+        }
+
+        void setParticleSystems()
+        {
+            // ----------------- particle system 1 -----------------
+
+            rectangle = new Rectangle(0, 0, 800, 600);
+            particleSys1 = new ParticleSystem(new Vector2(bossMissileList[0].getPosX() + bossMissileList[0].getWidth(), bossMissileList[0].getPosY() + bossMissileList[0].getHeight() / 2), 40, 900, 118);
+            particleSys1.setMandatory1(particleTex, new Vector2(5, 5), new Vector2(32, 32), Color.Red, Color.Yellow);
+            particleSys1.setMandatory2(-1, 1, 1, 5, 0);
+            particleSys1.setMandatory3(120, rectangle);
+            particleSys1.setMandatory4(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
+            particleSys1.activate();
+
+            // ----------------- particle system 2 -----------------
+
+            particleSys2 = new ParticleSystem(new Vector2(bossMissileList[1].getPosX() + bossMissileList[1].getWidth(), bossMissileList[1].getPosY() + bossMissileList[1].getHeight() / 2), 40, 900, 118);
+            particleSys2.setMandatory1(particleTex, new Vector2(5, 5), new Vector2(32, 32), Color.Red, Color.Yellow);
+            particleSys2.setMandatory2(-1, 1, 1, 5, 0);
+            particleSys2.setMandatory3(120, rectangle);
+            particleSys2.setMandatory4(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
+            particleSys1.activate();
+
+            // ----------------- particle system 3 -----------------
+
+            particleSys3 = new ParticleSystem(new Vector2(bossMissileList[2].getPosX() + bossMissileList[2].getWidth(), bossMissileList[2].getPosY() + bossMissileList[2].getHeight() / 2), 40, 900, 118);
+            particleSys3.setMandatory1(particleTex, new Vector2(5, 5), new Vector2(32, 32), Color.Red, Color.Yellow);
+            particleSys3.setMandatory2(-1, 1, 1, 5, 0);
+            particleSys3.setMandatory3(120, rectangle);
+            particleSys3.setMandatory4(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
+            particleSys2.activate();
+
+            // ----------------- particle system 4 -----------------
+
+            particleSys4 = new ParticleSystem(new Vector2(bossMissileList[3].getPosX() + bossMissileList[3].getWidth(), bossMissileList[3].getPosY() + bossMissileList[3].getHeight() / 2), 40, 900, 118);
+            particleSys4.setMandatory1(particleTex, new Vector2(5, 5), new Vector2(32, 32), Color.Red, Color.Yellow);
+            particleSys4.setMandatory2(-1, 1, 1, 5, 0);
+            particleSys4.setMandatory3(120, rectangle);
+            particleSys4.setMandatory4(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
+            particleSys3.activate();
+
+            // ----------------- particle system 5 -----------------
+
+            particleSys5 = new ParticleSystem(new Vector2(bossMissileList[4].getPosX() + bossMissileList[4].getWidth(), bossMissileList[4].getPosY() + bossMissileList[4].getHeight() / 2), 40, 900, 118);
+            particleSys5.setMandatory1(particleTex, new Vector2(5, 5), new Vector2(32, 32), Color.Red, Color.Yellow);
+            particleSys5.setMandatory2(-1, 1, 1, 5, 0);
+            particleSys5.setMandatory3(120, rectangle);
+            particleSys5.setMandatory4(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
+            particleSys4.activate();
         }
     }
 }
