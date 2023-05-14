@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using RC_Framework;
-using System;
 
 namespace Game1
 {
@@ -45,6 +44,7 @@ namespace Game1
         Sprite3 missile = null;
         Sprite3 failScreen = null;
         Sprite3 boom = null;
+        Sprite3 shield = null;
 
         SpriteList playerHealth = null;
         SpriteList bossBody = null;
@@ -69,6 +69,7 @@ namespace Game1
         public override void LoadContent()
         {
             texBack = Util.texFromFile(graphicsDevice, Dir.dir + "scroll_back2.png");
+            Texture2D texShield = Util.texFromFile(graphicsDevice, Dir.dir + "spr_shield.png");
             texSpaceShip = Util.texFromFile(graphicsDevice, Dir.dir + "playerShip2_blue_2.png");
             texTruck = Util.texFromFile(graphicsDevice, Dir.dir + "playerShip3_redL_Dark.png");
             texMissile = Util.texFromFile(graphicsDevice, Dir.dir + "Missile.png");
@@ -127,12 +128,17 @@ namespace Game1
             limBoomSound = new LimitSound(boomSound, 10);
             limShootSound = new LimitSound(shootSound, 10);
             musicBackground = new LimitSound(music, 1);
-            musicBackground.playSound();
+            //musicBackground.playSound();
 
             skyBack = new ScrollBackGround(texBack, texBack.Bounds, new Rectangle(0, 0, gameWindowWidth, gameWindowHeight), -5f, 2);
 
             spaceship = new Sprite3(true, texSpaceShip, xx, yy);
             setupSpaceship(spaceship);
+
+            shield = new Sprite3(false, texShield, spaceship.getPosX(), spaceship.getPosY());
+            shield.setWidth(100);
+            shield.setHeight(100);
+            shield.setActive(false);
 
             missile = new Sprite3(true, texMissile, 0, 0); //535x83
             missile = setupMissile(missile);
@@ -155,7 +161,7 @@ namespace Game1
             //bossMissileList.moveDeltaXY();
             for (int i = 0; i < bossMissileList.count(); i++)
             {
-                if (!bossMissileList[i].inside(playArea))
+                if (!bossMissileList[i].inside(playArea) || !bossMissileList[i].getActive())
                 {
                     bossMissileList[i].setPosX(gameWindowWidth - 100);
                     bossMissileList[i].setPosY(100 + (100 * i));
@@ -167,18 +173,17 @@ namespace Game1
                 }
                 if (bossMissileList[i].state == 1)
                 {
-                    if (Game1.keyState.IsKeyDown(Keys.A))
-                    {
-                        bossMissileList[i].moveTo(new Vector2(spaceship.getPosX() - 200, spaceship.getPosY() - 100), 5f, false);
-                    }
-                    else
-                    {
-                        bossMissileList[i].moveTo(new Vector2(spaceship.getPosX() + spaceship.getWidth() / 2, spaceship.getPosY() + spaceship.getHeight() / 2), 5f, false);
-                    }
+                    bossMissileList[i].setActive(true);
+                    bossMissileList[i].setVisible(true);
+                    bossMissileList[i].moveTo(new Vector2(spaceship.getPosX() + spaceship.getWidth() / 2, spaceship.getPosY() + spaceship.getHeight() / 2), 5f, false);
                 }
             }
 
+            // shield logic
+            activateDeactivateShield();
+
             handleSpaceshipMovement(Game1.keyState);
+            shield.setPos(spaceship.getPosX()-20, spaceship.getPosY() - 15);
 
             checkColilssions(gameTime, boomAnim);
 
@@ -230,20 +235,31 @@ namespace Game1
 
             skyBack.Draw(spriteBatch);
             spaceship.Draw(spriteBatch);
+            shield.Draw(spriteBatch);
             missile.Draw(spriteBatch);
             failScreen.Draw(spriteBatch);
             boom.Draw(spriteBatch);
-            //enemies.Draw(spriteBatch);
-            //enemy_missile_list.Draw(spriteBatch);
             bossBody.Draw(spriteBatch);
             bossMissileList.Draw(spriteBatch);
             playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
-            //spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
-            //spriteBatch.DrawString(font1, "health point: " + spaceship.hitPoints, new Vector2(10, 60), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
             spriteBatch.End();
+        }
+
+        private void activateDeactivateShield()
+        {
+            if (Game1.keyState.IsKeyDown(Keys.A))
+            {
+                shield.setActive(true);
+                shield.setVisible(true);
+            }
+            else if (Game1.keyState.IsKeyUp(Keys.A) && Game1.prevKeyState.IsKeyDown(Keys.A))
+            {
+                shield.setActive(false);
+                shield.setVisible(false);
+            }
         }
 
         private void checkColilssions(GameTime gameTime, Vector2[] boomAnim)
@@ -295,6 +311,16 @@ namespace Game1
                         failScreen.setActive(true);
                         failScreen.setVisible(true);
                     }
+                    limBoomSound.playSound();
+                }
+
+                // collision between missile and shield
+                if (m.collision(shield) && m.active && shield.active)
+                {
+                    m.setActive(false);
+                    m.setVisible(false);
+                    m.state = 0;
+                    playBoomAnimation(m.collisionRect(shield));
                     limBoomSound.playSound();
                 }
             }
@@ -386,6 +412,8 @@ namespace Game1
             missile.drawHS(spriteBatch, Color.Red);
             boom.drawBB(spriteBatch, Color.Green);
             boom.drawHS(spriteBatch, Color.Red);
+            shield.drawBB(spriteBatch, Color.Green);
+            shield.drawHS(spriteBatch, Color.Red);
             foreach (Sprite3 s in bossBody)
             {
                 s.drawBB(spriteBatch, Color.Green);
