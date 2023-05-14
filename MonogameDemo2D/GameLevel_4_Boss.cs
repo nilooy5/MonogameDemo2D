@@ -56,6 +56,9 @@ namespace Game1
         SoundEffect music;
         SoundEffect shootSound;
 
+        int shieldDuration = 10;
+        int shieldInputCounter = 0;
+
         LimitSound limBoomSound;
         LimitSound limShootSound;
         LimitSound musicBackground;
@@ -244,21 +247,28 @@ namespace Game1
             playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font1, "shield pressed: " + shieldInputCounter, new Vector2(10, 40), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
 
             spriteBatch.End();
         }
 
         private void activateDeactivateShield()
         {
-            if (Game1.keyState.IsKeyDown(Keys.A))
+            if (Game1.keyState.IsKeyDown(Keys.A) && shieldInputCounter < shieldDuration)
             {
                 shield.setActive(true);
                 shield.setVisible(true);
+                shieldInputCounter++;
             }
-            else if (Game1.keyState.IsKeyUp(Keys.A) && Game1.prevKeyState.IsKeyDown(Keys.A))
+            else if (Game1.keyState.IsKeyUp(Keys.A) && Game1.prevKeyState.IsKeyDown(Keys.A) || shieldInputCounter == shieldDuration)
             {
                 shield.setActive(false);
                 shield.setVisible(false);
+            }
+            if (!Game1.keyState.IsKeyDown(Keys.A))
+            {
+                if (shieldInputCounter > 0) shieldInputCounter--;
             }
         }
 
@@ -394,7 +404,6 @@ namespace Game1
                 if (spaceship.getPosY() < bottomLimit) spaceship.setPosY(spaceship.getPosY() + ssYSpeed);
             }
         }
-
 
         private void pauseMovement()
         {
