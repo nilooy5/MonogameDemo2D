@@ -275,8 +275,6 @@ namespace Game1
             playerHealth.Draw(spriteBatch);
             if (showBB) renderBoundingBoxes();
             spriteBatch.DrawString(font1, "score: " + Game1.gameScore, new Vector2(10, 10), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
-            spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
-            spriteBatch.DrawString(font1, "shield pressed: " + shieldInputCounter, new Vector2(10, 40), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
 
             particleSys1.Draw(spriteBatch);
             particleSys2.Draw(spriteBatch);
@@ -457,6 +455,8 @@ namespace Game1
             boom.drawHS(spriteBatch, Color.Red);
             shield.drawBB(spriteBatch, Color.Green);
             shield.drawHS(spriteBatch, Color.Red);
+            spriteBatch.DrawString(font1, "update counter: " + updateCounter, new Vector2(10, 30), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font1, "shield pressed: " + shieldInputCounter, new Vector2(10, 40), Color.White, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
             foreach (Sprite3 s in bossBody)
             {
                 s.drawBB(spriteBatch, Color.Green);
